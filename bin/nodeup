@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require 'chef/application/knife'
+require 'slop'
+
+opts = Slop.parse do |o|
+  # Connection settings
+  o.string '-v', '--bootstrap-version', 'bootstrap_version', default: '12.6.0'
+  o.string '-u', '--server-url',        'server-url',        default: 'https://chef_url.com'
+  o.string '-r', '--role',              'role',              default: 'api-search'
+  o.string '-e', '--environment',       'environment',       default: 'linode_alpha'
+  o.string '-i', '--image',             'linode-image',      default: '124'                     # Ubuntu 14.04
+  o.string '-k', '--kernel',            'linode-kernel',     default: '138'                     # Latest x64
+  o.string '-d', '--datacenter',        'linode-datacenter', default: '7'                       # London, England, UK
+  o.string '-f', '--flavor',            'linode-flavor',     default: '4'                       # Linode 4096
+  o.string '-n', '--num-nodes',         'num-nodes',         default: '1'
+  o.on '--help', 'print the help' do
+    puts o
+    exit
+  end
+end
+
+Chef::Config[:node_name] = 'docker-ci-runner'
+Chef::Config[:client_key] = '/root/.chef/docker-ci-runner.pem'
+Chef::Config[:knife][:linode_api_key] = 'YRpTCvJFQv1wxTvh265hTZRxF0zIX6p2wo4jjq7cZDdH7OeApvy2CHAAYp7my9dw'
+Chef::Config[:chef_server_url] = 'https://chef_url.com/organizations/ott'
+
+opts[:num_nodes].to_i.times do
+  node_name = opts[:role] + "-" + rand(36**6).to_s(36)
+  args = %W{
+      linode server create
+      --bootstrap-version #{opts[:bootstrap_version]}
+      --environment #{opts[:environment]}
+      -r role[#{opts[:role]}]
+      --linode-image #{opts[:image]}
+      --linode-kernel #{opts[:kernel]}
+      --linode-datacenter #{opts[:datacenter]}
+      --linode-flavor #{opts[:flavor]}
+      --linode-node-name #{node_name}
+      --node-name #{node_name}
+      --bootstrap-template twiket-bootstrap}
+  begin
+    Chef::Knife.run(args)
+  rescue Exception => e
+    puts e.message
+  end
+end
