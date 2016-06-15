@@ -174,6 +174,11 @@ cat <<EOF
 ${IPV4ADDR} <%= @config[:chef_node_name] %>
 EOF
 ) > /etc/hosts
+(
+cat <<EOF
+<%= @config[:chef_node_name] %>
+EOF
+) > /etc/hostname
 hostname <%= @config[:chef_node_name] %>
 
 echo "Setup private IP: <%= @config[:private_ip] %>"

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
-require 'chef/application/knife'
+require 'chef/knife'
 require 'slop'
 require 'colorize'
 
@@ -24,16 +24,16 @@ opts = Slop.parse do |o|
 end
 
 Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = opts[:key]
-Chef::Config[:knife][:linode_api_key] = 'password'
+Chef::Config[:client_key] = opts[:chef_key]
 Chef::Config[:chef_server_url] = 'https://chef_url.com/organizations/ott'
+Chef::Config[:knife][:linode_api_key] = 'password'
 Chef::Config[:knife][:environment] = opts[:environment]
+Chef::Config[:knife][:yes] = ''
 
 nodes = []
 threads = []
 opts[:num_nodes].to_i.times do
   node_name = opts[:role] + "-" + rand(36**6).to_s(36)
-  nodes.push node_name
   args = %W{
       linode server create
       --bootstrap-version #{opts[:bootstrap_version]}
@@ -49,7 +49,10 @@ opts[:num_nodes].to_i.times do
     begin
       Chef::Knife.run(args)
     rescue Exception => e
-      puts e.message
+      puts e.message.red
+      Chef::Knife.run(%W{linode server delete --purge #{node_name}})
+    else
+      nodes.push node_name
     end
   end
 end
