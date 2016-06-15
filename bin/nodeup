@@ -16,6 +16,7 @@ opts = Slop.parse do |o|
   o.string '-d', '--datacenter',        'linode-datacenter', default: '7'                       # London, England, UK
   o.string '-f', '--flavor',            'linode-flavor',     default: '4'                       # Linode 4096
   o.string '-n', '--num-nodes',         'num-nodes',         default: '1'
+  o.string '-ck', '--chef-key',         'chef-key',          default: nil
   o.on '--help', 'print the help' do
     puts o
     exit
@@ -23,8 +24,8 @@ opts = Slop.parse do |o|
 end
 
 Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = '/root/.chef/docker-ci-runner.pem'
-Chef::Config[:knife][:linode_api_key] = 'YRpTCvJFQv1wxTvh265hTZRxF0zIX6p2wo4jjq7cZDdH7OeApvy2CHAAYp7my9dw'
+Chef::Config[:client_key] = opts[:key]
+Chef::Config[:knife][:linode_api_key] = 'password'
 Chef::Config[:chef_server_url] = 'https://chef_url.com/organizations/ott'
 Chef::Config[:knife][:environment] = opts[:environment]
 
