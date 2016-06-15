@@ -3,6 +3,7 @@
 require "bundler/setup"
 require 'chef/application/knife'
 require 'slop'
+require 'colorize'
 
 opts = Slop.parse do |o|
   # Connection settings
@@ -25,13 +26,16 @@ Chef::Config[:node_name] = 'docker-ci-runner'
 Chef::Config[:client_key] = '/root/.chef/docker-ci-runner.pem'
 Chef::Config[:knife][:linode_api_key] = 'YRpTCvJFQv1wxTvh265hTZRxF0zIX6p2wo4jjq7cZDdH7OeApvy2CHAAYp7my9dw'
 Chef::Config[:chef_server_url] = 'https://chef_url.com/organizations/ott'
+Chef::Config[:knife][:environment] = opts[:environment]
 
+nodes = []
+threads = []
 opts[:num_nodes].to_i.times do
   node_name = opts[:role] + "-" + rand(36**6).to_s(36)
+  nodes.push node_name
   args = %W{
       linode server create
       --bootstrap-version #{opts[:bootstrap_version]}
-      --environment #{opts[:environment]}
       -r role[#{opts[:role]}]
       --linode-image #{opts[:image]}
       --linode-kernel #{opts[:kernel]}
@@ -39,10 +43,18 @@ opts[:num_nodes].to_i.times do
       --linode-flavor #{opts[:flavor]}
       --linode-node-name #{node_name}
       --node-name #{node_name}
-      --bootstrap-template twiket-bootstrap}
-  begin
-    Chef::Knife.run(args)
-  rescue Exception => e
-    puts e.message
+      --bootstrap-template templates/twiket-bootstrap}
+  threads << Thread.new(args) do |args|
+    begin
+      Chef::Knife.run(args)
+    rescue Exception => e
+      puts e.message
+    end
   end
+end
+threads.each {|thr| thr.join }
+
+puts "Bootstrapped the following nodes:"
+nodes.each do |node|
+  puts node.green
 end
