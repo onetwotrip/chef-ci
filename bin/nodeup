@@ -4,6 +4,7 @@ require "bundler/setup"
 require 'chef/knife'
 require 'slop'
 require 'colorize'
+require 'mixlib/cli'
 
 opts = Slop.parse do |o|
   # Connection settings
@@ -50,7 +51,14 @@ opts[:num_nodes].to_i.times do
       Chef::Knife.run(args)
     rescue Exception => e
       puts e.message.red
-      Chef::Knife.run(%W{linode server delete --purge #{node_name}})
+
+      class KnifeCliTemplate
+        include Mixlib::CLI
+      end
+
+      KnifeCliTemplate.option(:yes, :long => "--yes")
+
+      Chef::Knife.run(%W{linode server delete --purge #{node_name}}, KnifeCliTemplate.options)
     else
       nodes.push node_name
     end
