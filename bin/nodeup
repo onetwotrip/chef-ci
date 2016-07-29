@@ -15,7 +15,7 @@ opts = Slop.parse do |o|
   o.string '-i', '--image',             'linode-image',      default: '124'                     # Ubuntu 14.04
   o.string '-k', '--kernel',            'linode-kernel',     default: '138'                     # Latest x64
   o.string '-d', '--datacenter',        'linode-datacenter', default: '7'                       # London, England, UK
-  o.string '-f', '--flavor',            'linode-flavor',     default: '4'                       # Linode 4096
+  o.string '-f', '--flavor',            'linode-flavor',     default: '4'                       # Linode 8192
   o.string '-n', '--num-nodes',         'num-nodes',         default: '1'
   o.string '-lk', '--linode-api-key',   'linode-api-key',    default: nil
   o.string '-ck', '--chef-key',         'chef-key',          default: nil
