@@ -34,7 +34,7 @@ Chef::Config[:knife][:yes] = ''
 nodes = []
 threads = []
 opts[:num_nodes].to_i.times do
-  node_name = opts[:role] + "-" + rand(36**6).to_s(36)
+  node_name = opts[:environment] + "-" + opts[:role] + "-" + rand(36**6).to_s(36)
   args = %W{
       linode server create
       --bootstrap-version #{opts[:bootstrap_version]}
