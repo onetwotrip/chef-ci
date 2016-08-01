@@ -46,8 +46,9 @@ class Node
       --bootstrap-template templates/twiket-bootstrap)
     begin
       Chef::Knife.run args
-    rescue => e
-      puts e.message.red
+    rescue SystemExit, StandardError => e
+      puts "Catch exception of type: #{e.class}".red
+      puts "Message: #{e.message}".red
       KnifeCliTemplate.option(:yes, long: '--yes')
       Chef::Knife.run %W(linode server delete #{name}), KnifeCliTemplate.options
     else

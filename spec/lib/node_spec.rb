@@ -1,5 +1,11 @@
 require 'spec_helper'
 describe Node do
+  before do
+    allow(Chef::Knife).to receive(:run).with(
+      array_including(%w(linode server delete)),
+      instance_of(Hash)
+    ).and_return true
+  end
   before :each do
     @name = 'node'
     @node = described_class.new bootstrap_version: '12.6.0',
@@ -31,15 +37,25 @@ describe Node do
     it 'falsey if nodeup failed' do
       expect(Chef::Knife).to receive(:run).with(
         array_including(%w(linode server create))
-      ).and_raise(RuntimeError, 'STUB Raise')
-      expect(Chef::Knife).to receive(:run).with(
-        array_including(%w(linode server delete)),
-        instance_of(Hash)
-      ).and_return true
+      ).and_raise('STUB Raise')
       expect { @node.deploy }.to output(/STUB Raise/).to_stdout
       expect(@node.name_colorize).to eql @node.name.red
       expect(@node.status).to be_falsey
       expect(@node.fail?).to be_truthy
+    end
+    it 'falsey if nodeup failed with SystemExit' do
+      expect(Chef::Knife).to receive(:run).with(
+        array_including(%w(linode server create))
+      ).and_raise(SystemExit, 'SystemExit')
+      expect { @node.deploy }.to output(/SystemExit/).to_stdout
+      expect(@node.status).to be_falsey
+    end
+    it 'falsey if nodeup failed with StandartError' do
+      expect(Chef::Knife).to receive(:run).with(
+        array_including(%w(linode server create))
+      ).and_raise(StandardError, 'StandardError')
+      expect { @node.deploy }.to output(/StandardError/).to_stdout
+      expect(@node.status).to be_falsey
     end
   end
 end
