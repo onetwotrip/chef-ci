@@ -1,0 +1,12 @@
+.properties
+.idea
+*.swp
+coverage/
+/.bundle/
+/.yardoc
+/_yardoc/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+*.sublime-*
