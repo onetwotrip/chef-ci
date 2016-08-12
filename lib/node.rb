@@ -21,7 +21,7 @@ class Node
   end
 
   def name
-    "#{params[:environment]}-#{params[:role]}-#{@hash}"
+    "#{params[:environment]}-#{params[:role]}-#{@hash}".tr('_', '-')
   end
 
   def name_colorize
