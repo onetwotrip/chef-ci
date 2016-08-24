@@ -16,6 +16,7 @@ opts = Slop.parse do |o|
   o.string '-f', '--flavor',            'linode-flavor',     default: '4'               # Linode 8192
   o.string '-n', '--num-nodes',         'num-nodes',         default: '1'
   o.bool   '-s', '--save-nodes',        'save-nodes',        default: false             # Don't delete nodes on fails
+  o.bool   '-nm', '--no-maintain',      'no-maintain',       default: false             # Don't set maintain tags
   o.string '-lk', '--linode-api-key',   'linode-api-key',    default: nil
   o.string '-ck', '--chef-key',         'chef-key',          default: nil
   o.on '--help', 'print the help' do

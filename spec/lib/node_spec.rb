@@ -29,6 +29,9 @@ describe Node do
       expect(Chef::Knife).to receive(:run).with(
         array_including(%w(linode server create))
       ).and_return true
+      expect(Chef::Knife).to receive(:run).with(
+        array_including(%w(tag create maintain))
+      ).and_return true
       expect { @node.deploy }.to_not output.to_stdout
       expect(@node.status).to be_truthy
       expect(@node.name_colorize).to eql @node.name.green
