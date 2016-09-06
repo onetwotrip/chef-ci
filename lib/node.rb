@@ -46,7 +46,7 @@ class Node
       --bootstrap-template templates/twiket-bootstrap)
     begin
       Chef::Knife.run args
-      Chef::Knife.run %W(linode tag create #{name} maintain) unless @params[:no_maintain]
+      Chef::Knife.run %W(tag create #{name} maintain) unless @params[:no_maintain]
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
