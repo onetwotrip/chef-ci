@@ -7,7 +7,7 @@ require 'node'
 opts = Slop.parse do |o|
   # Connection settings
   o.string '-v', '--bootstrap-version', 'bootstrap_version', default: '12.6.0'
-  o.string '-u', '--server-url',        'server-url',        default: 'https://chef_url.com'
+  o.string '-u', '--chef-url',          'chef-url',          default: 'https://chef_url.com'
   o.string '-r', '--role',              'role',              default: 'api-search'
   o.string '-e', '--environment',       'environment',       default: 'linode_alpha'
   o.string '-i', '--image',             'linode-image',      default: '124'             # Ubuntu 14.04
@@ -27,7 +27,7 @@ end
 
 Chef::Config[:node_name] = 'docker-ci-runner'
 Chef::Config[:client_key] = opts[:chef_key]
-Chef::Config[:chef_server_url] = 'https://chef_url.com/organizations/ott'
+Chef::Config[:chef_server_url] = opts[:chef_url]
 Chef::Config[:knife][:linode_api_key] = opts[:linode_api_key]
 Chef::Config[:knife][:environment] = opts[:environment]
 Chef::Config[:knife][:yes] = ''
