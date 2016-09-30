@@ -51,7 +51,10 @@ class Node
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
       KnifeCliTemplate.option(:yes, long: '--yes')
-      Chef::Knife.run %W(linode server delete #{name}), KnifeCliTemplate.options unless @params[:save_nodes]
+      unless @params[:save_nodes]
+        Chef::Knife.run %W(linode server delete #{name}), KnifeCliTemplate.options
+        Chef::Knife.run %W(node delete #{name}), KnifeCliTemplate.options
+      end
     else
       @status = true
     end
