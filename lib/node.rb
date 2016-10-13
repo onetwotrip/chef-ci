@@ -11,28 +11,19 @@ end
 ##
 # This class represents Node
 class Node
-  attr_reader :params
-  attr_accessor :status
-
-  def initialize(params)
-    @params = params
-    @hash = rand(36**6).to_s(36)
-    @status = false
-  end
-
-  def name
-    "#{params[:environment]}-#{params[:role]}-#{@hash}".tr('_', '-')
-  end
+  attr_reader :name, :status
 
   def name_colorize
-    status ? name.green : name.red
+    status ? @name.green : @name.red
   end
 
-  def fail?
-    !status
+  def get(name)
+    @name = name
   end
 
-  def deploy
+  def create(params)
+    @name = "#{params[:environment]}-#{params[:role]}-#{rand(36**6).to_s(36)}".tr('_', '-')
+    @status = false
     args = %W(
       linode server create
       --bootstrap-version #{params[:bootstrap_version]}
@@ -41,22 +32,24 @@ class Node
       --linode-kernel #{params[:kernel]}
       --linode-datacenter #{params[:datacenter]}
       --linode-flavor #{params[:flavor]}
-      --linode-node-name #{name}
-      --node-name #{name}
+      --linode-node-name #{@name}
+      --node-name #{@name}
       --bootstrap-template templates/twiket-bootstrap)
     begin
       Chef::Knife.run args
-      Chef::Knife.run %W(tag create #{name} maintain) unless @params[:no_maintain]
+      Chef::Knife.run %W(tag create #{@name} maintain) unless params[:no_maintain]
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
-      KnifeCliTemplate.option(:yes, long: '--yes')
-      unless @params[:save_nodes]
-        Chef::Knife.run %W(linode server delete #{name}), KnifeCliTemplate.options
-        Chef::Knife.run %W(node delete #{name}), KnifeCliTemplate.options
-      end
+      delete unless params[:save_nodes]
     else
       @status = true
     end
+  end
+
+  def delete(node = @name)
+    KnifeCliTemplate.option(:yes, long: '--yes')
+    Chef::Knife.run %W(linode server delete #{node}), KnifeCliTemplate.options
+    Chef::Knife.run %W(node delete #{node}), KnifeCliTemplate.options
   end
 end

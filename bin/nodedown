@@ -19,6 +19,7 @@ opts = Slop.parse do |o|
   o.bool   '-nm', '--no-maintain',      'no-maintain',       default: false             # Don't set maintain tags
   o.string '-lk', '--linode-api-key',   'linode-api-key',    default: nil
   o.string '-ck', '--chef-key',         'chef-key',          default: nil
+  o.string '-node', '--node-name',      'node-name',         default: nil
   o.on '--help', 'print the help' do
     puts o
     exit
@@ -32,20 +33,8 @@ Chef::Config[:knife][:linode_api_key] = opts[:linode_api_key]
 Chef::Config[:knife][:environment] = opts[:environment]
 Chef::Config[:knife][:yes] = ''
 
-nodes = []
-threads = []
-opts[:num_nodes].to_i.times do
-  node = Node.new
-  threads << Thread.new do
-    node.create opts
-    nodes.push node
-  end
+puts 'Destroyed the following node:'
+opts[:node_name].split.each do |node_name|
+  puts node_name
+  Node.new.delete(node_name)
 end
-threads.each(&:join)
-
-puts 'Bootstrapped the following nodes:'
-nodes.each do |node|
-  puts node.name_colorize
-end
-
-exit 1 if nodes.select(&:status).any?
