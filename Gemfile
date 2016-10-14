@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 gem 'knife-linode', git: 'https://github.com/onetwotrip/knife-linode.git'
 gem 'chef'
-gem 'slop'
 gem 'colorize'
+gem 'SimpleConfig', git: 'https://github.com/onetwotrip/SimpleConfig'
 
 group :development do
   gem 'overcommit'

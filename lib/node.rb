@@ -22,26 +22,26 @@ class Node
   end
 
   def create(params)
-    @name = "#{params[:environment]}-#{params[:role]}-#{rand(36**6).to_s(36)}".tr('_', '-')
+    @name = "#{params.chef.env}-#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
     @status = false
     args = %W(
       linode server create
-      --bootstrap-version #{params[:bootstrap_version]}
-      -r role[#{params[:role]}]
-      --linode-image #{params[:image]}
-      --linode-kernel #{params[:kernel]}
-      --linode-datacenter #{params[:datacenter]}
-      --linode-flavor #{params[:flavor]}
+      --bootstrap-version #{params.chef.version}
+      -r role[#{params.chef.role}]
+      --linode-image #{params.linode.image}
+      --linode-kernel #{params.linode.kernel}
+      --linode-datacenter #{params.linode.datacenter}
+      --linode-flavor #{params.linode.flavor}
       --linode-node-name #{@name}
       --node-name #{@name}
       --bootstrap-template templates/twiket-bootstrap)
     begin
       Chef::Knife.run args
-      Chef::Knife.run %W(tag create #{@name} maintain) unless params[:no_maintain]
+      Chef::Knife.run %W(tag create #{@name} maintain) unless params.nomaintain
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
-      delete unless params[:save_nodes]
+      delete unless params.save
     else
       @status = true
     end

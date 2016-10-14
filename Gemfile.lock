@@ -1,4 +1,10 @@
 GIT
+  remote: https://github.com/onetwotrip/SimpleConfig
+  revision: 30a597be2d72d656bf6ad17681361334a0bae6fd
+  specs:
+    SimpleConfig (0.0.1)
+
+GIT
   remote: https://github.com/onetwotrip/knife-linode.git
   revision: f1dc473ada2ea141c221f21db4bd6901a2a59d94
   specs:
@@ -290,7 +296,6 @@ GEM
       json (~> 1.8)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
-    slop (4.3.0)
     specinfra (2.59.0)
       net-scp
       net-ssh (>= 2.7, < 4.0)
@@ -308,6 +313,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  SimpleConfig!
   chef
   codeclimate-test-reporter
   colorize
@@ -318,7 +324,6 @@ DEPENDENCIES
   rspec
   rubocop
   simplecov
-  slop
 
 BUNDLED WITH
    1.12.5

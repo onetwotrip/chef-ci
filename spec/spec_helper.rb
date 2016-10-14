@@ -1,5 +1,7 @@
 require 'bundler/setup'
+require 'simple_config'
 require 'simplecov'
+
 SimpleCov.start do
   SimpleCov.minimum_coverage_by_file 95
 end

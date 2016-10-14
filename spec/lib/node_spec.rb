@@ -1,18 +1,8 @@
 require 'spec_helper'
+
 describe Node do
   before do
-    @params = { bootstrap_version: '12.6.0',
-                server_url: 'https://chef_url.com',
-                role: 'api-search',
-                environment: 'linode_alpha',
-                image: '124',
-                kernel: '138',
-                datacenter: '7',
-                flavor: '4',
-                num_nodes: '1',
-                linode_api_key: nil,
-                chef_key: nil,
-    }
+    @params = SimpleConfig.deploy
     [
       %w(linode server delete),
       %w(node delete),

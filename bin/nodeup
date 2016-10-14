@@ -1,43 +1,22 @@
 #!/usr/bin/env ruby
 require 'bundler/setup'
 require 'chef/config'
-require 'slop'
+require 'simple_config'
 require 'node'
 
-opts = Slop.parse do |o|
-  # Connection settings
-  o.string '-v', '--bootstrap-version', 'bootstrap_version', default: '12.6.0'
-  o.string '-u', '--chef-url',          'chef-url',          default: 'https://chef_url.com'
-  o.string '-r', '--role',              'role',              default: 'api-search'
-  o.string '-e', '--environment',       'environment',       default: 'linode_alpha'
-  o.string '-i', '--image',             'linode-image',      default: '124'             # Ubuntu 14.04
-  o.string '-k', '--kernel',            'linode-kernel',     default: '138'             # Latest x64
-  o.string '-d', '--datacenter',        'linode-datacenter', default: '7'               # London, England, UK
-  o.string '-f', '--flavor',            'linode-flavor',     default: '4'               # Linode 8192
-  o.string '-n', '--num-nodes',         'num-nodes',         default: '1'
-  o.bool   '-s', '--save-nodes',        'save-nodes',        default: false             # Don't delete nodes on fails
-  o.bool   '-nm', '--no-maintain',      'no-maintain',       default: false             # Don't set maintain tags
-  o.string '-lk', '--linode-api-key',   'linode-api-key',    default: nil
-  o.string '-ck', '--chef-key',         'chef-key',          default: nil
-  o.on '--help', 'print the help' do
-    puts o
-    exit
-  end
-end
-
 Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = opts[:chef_key]
-Chef::Config[:chef_server_url] = opts[:chef_url]
-Chef::Config[:knife][:linode_api_key] = opts[:linode_api_key]
-Chef::Config[:knife][:environment] = opts[:environment]
+Chef::Config[:client_key] = SimpleConfig.chef.apikey
+Chef::Config[:chef_server_url] = SimpleConfig.chef.url
+Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
+Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.environment
 Chef::Config[:knife][:yes] = ''
 
 nodes = []
 threads = []
-opts[:num_nodes].to_i.times do
+SimpleConfig.deploy.count.to_i.times do
   node = Node.new
   threads << Thread.new do
-    node.create opts
+    node.create SimpleConfig.deploy
     nodes.push node
   end
 end
