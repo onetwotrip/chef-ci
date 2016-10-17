@@ -8,7 +8,7 @@ Chef::Config[:node_name] = 'docker-ci-runner'
 Chef::Config[:client_key] = SimpleConfig.chef.apikey
 Chef::Config[:chef_server_url] = SimpleConfig.chef.url
 Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
-Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.environment
+Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.env
 Chef::Config[:knife][:yes] = ''
 
 nodes = []
