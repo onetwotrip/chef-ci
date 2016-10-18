@@ -3,15 +3,6 @@ require 'spec_helper'
 describe Node do
   before do
     @params = SimpleConfig.deploy
-    [
-      %w(linode server delete),
-      %w(node delete),
-    ].each do |knife_cmd|
-      allow(Chef::Knife).to receive(:run).with(
-        array_including(knife_cmd),
-        instance_of(Hash)
-      ).and_return true
-    end
   end
   before :each do
     @node = described_class.new
@@ -30,7 +21,6 @@ describe Node do
       ).and_return true
       expect { @node.create @params }.to_not output.to_stdout
       expect(@node.status).to be_truthy
-      expect(@node.name_colorize).to eql @node.name.green
     end
     {
       SystemExit => 'SystemExitMsg',
@@ -43,6 +33,21 @@ describe Node do
         expect { @node.create @params }.to output(/#{err_msg}/).to_stdout
         expect(@node.status).to be_falsey
       end
+    end
+  end
+
+  describe '.delete' do
+    it 'truthy on delete' do
+      [
+        %w(linode server delete),
+        %w(node delete),
+      ].each do |knife_cmd|
+        allow(Chef::Knife).to receive(:run).with(
+          array_including(knife_cmd),
+          instance_of(Hash)
+        ).and_return true
+      end
+      expect(@node.delete).to be_truthy
     end
   end
 end

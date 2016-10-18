@@ -13,14 +13,6 @@ end
 class Node
   attr_reader :name, :status
 
-  def name_colorize
-    status ? @name.green : @name.red
-  end
-
-  def get(name)
-    @name = name
-  end
-
   def create(params)
     @name = "#{params.chef.env}-#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
     @status = false
@@ -41,7 +33,6 @@ class Node
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
-      delete unless params.save
     else
       @status = true
     end

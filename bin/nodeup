@@ -22,9 +22,17 @@ SimpleConfig.deploy.count.to_i.times do
 end
 threads.each(&:join)
 
-puts 'Bootstrapped the following nodes:'.green
-nodes.each do |node|
-  puts node.name_colorize
+puts 'Bootstrapped the following nodes:'.green if nodes.select(&:status).any?
+nodes.select(&:status).each do |node|
+  puts node.name.green
+end
+
+if nodes.reject(&:status).any?
+  puts 'Failed the following nodes:'.red
+  nodes.reject(&:status).each do |node|
+    puts node.name.red
+  end
+  File.write('nodedown.parameters', "nodes=#{nodes.join(' ')}") unless SimpleConfig.deploy.save
 end
 
 exit 1 if nodes.reject(&:status).any?
