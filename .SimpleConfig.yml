@@ -5,7 +5,7 @@ chef:
 deploy:
   count: '1'
   save: false
-  nomaintain: false
+  maintain: true
   chef:
     version: '12.6.0'
     role: 'search'
