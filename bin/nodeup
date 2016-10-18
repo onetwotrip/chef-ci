@@ -32,6 +32,7 @@ if nodes.reject(&:status).any?
   nodes.reject(&:status).each do |node|
     puts node.name.red
   end
+  puts SimpleConfig.deploy.inspect
   File.write('nodedown.parameters', "nodes=#{nodes.join(' ')}") unless SimpleConfig.deploy.save
 end
 
