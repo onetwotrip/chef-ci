@@ -4,6 +4,9 @@ require 'chef/config'
 require 'simple_config'
 require 'node'
 
+env_file = 'nodedown.parameters'
+File.delete env_file if File.exist? env_file
+
 Chef::Config[:node_name] = 'docker-ci-runner'
 Chef::Config[:client_key] = SimpleConfig.chef.apikey
 Chef::Config[:chef_server_url] = SimpleConfig.chef.url
@@ -22,22 +25,16 @@ SimpleConfig.deploy.count.to_i.times do
 end
 threads.each(&:join)
 
-deployed = nodes.select(&:status)
-rejected = nodes.reject(&:status)
+deployed = nodes.select(&:status).map(&:name)
+rejected = nodes.reject(&:status).map(&:name)
 
-if deployed.any?
-  puts 'Bootstrapped the following nodes:'.green
-  deployed.each do |node|
-    puts node.name.green
-  end
-end
+puts 'Bootstrapped the following nodes:'.green if deployed.any?
+deployed.each { |node| puts node.green }
+
+puts 'Failed the following nodes:'.red if rejected.any?
+rejected.each { |node| puts node.red }
 
 if rejected.any?
-  puts 'Failed the following nodes:'.red
-  rejected.each do |node|
-    puts node.name.red
-  end
-  File.write('nodedown.parameters', "nodes=#{rejected.map(&:name).join(' ')}") unless SimpleConfig.deploy.save
+  File.write(env_file, "nodes=#{rejected.join(' ')}") unless SimpleConfig.deploy.save
+  exit 1
 end
-
-exit 1 if nodes.reject(&:status).any?
