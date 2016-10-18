@@ -38,11 +38,12 @@ class Node
     begin
       Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) unless params.nomaintain
-      @status = true
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
       delete unless params.save
+    else
+      @status = true
     end
   end
 

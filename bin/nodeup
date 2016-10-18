@@ -27,4 +27,4 @@ nodes.each do |node|
   puts node.name_colorize
 end
 
-exit 1 if nodes.select(&:status).any?
+exit 1 if nodes.reject(&:status).any?
