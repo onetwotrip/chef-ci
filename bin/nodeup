@@ -22,7 +22,7 @@ SimpleConfig.deploy.count.to_i.times do
 end
 threads.each(&:join)
 
-puts 'Bootstrapped the following nodes:'
+puts 'Bootstrapped the following nodes:'.green
 nodes.each do |node|
   puts node.name_colorize
 end

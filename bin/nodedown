@@ -11,8 +11,8 @@ Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
 Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.env
 Chef::Config[:knife][:yes] = ''
 
-puts 'Destroyed the following node:'
+puts 'Destroyed the following node:'.green
 SimpleConfig.nodes.split.each do |name|
-  puts node_name
+  puts name.green
   Node.new.delete(name)
 end
