@@ -5,4 +5,3 @@ ADD . /opt/nodeup
 WORKDIR /opt/nodeup
 
 RUN bundle install
-ENTRYPOINT bin/nodeup
