@@ -11,52 +11,36 @@ end
 ##
 # This class represents Node
 class Node
-  attr_reader :params
-  attr_accessor :status
+  attr_reader :name, :status
 
-  def initialize(params)
-    @params = params
-    @hash = rand(36**6).to_s(36)
+  def create(params)
+    @name = "#{params.chef.env}-#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
     @status = false
-  end
-
-  def name
-    "#{params[:environment]}-#{params[:role]}-#{@hash}".tr('_', '-')
-  end
-
-  def name_colorize
-    status ? name.green : name.red
-  end
-
-  def fail?
-    !status
-  end
-
-  def deploy
     args = %W(
       linode server create
-      --bootstrap-version #{params[:bootstrap_version]}
-      -r role[#{params[:role]}]
-      --linode-image #{params[:image]}
-      --linode-kernel #{params[:kernel]}
-      --linode-datacenter #{params[:datacenter]}
-      --linode-flavor #{params[:flavor]}
-      --linode-node-name #{name}
-      --node-name #{name}
+      --bootstrap-version #{params.chef.version}
+      -r role[#{params.chef.role}]
+      --linode-image #{params.linode.image}
+      --linode-kernel #{params.linode.kernel}
+      --linode-datacenter #{params.linode.datacenter}
+      --linode-flavor #{params.linode.flavor}
+      --linode-node-name #{@name}
+      --node-name #{@name}
       --bootstrap-template templates/twiket-bootstrap)
     begin
       Chef::Knife.run args
-      Chef::Knife.run %W(tag create #{name} maintain) unless @params[:no_maintain]
+      Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
-      KnifeCliTemplate.option(:yes, long: '--yes')
-      unless @params[:save_nodes]
-        Chef::Knife.run %W(linode server delete #{name}), KnifeCliTemplate.options
-        Chef::Knife.run %W(node delete #{name}), KnifeCliTemplate.options
-      end
     else
       @status = true
     end
+  end
+
+  def delete(node = @name)
+    KnifeCliTemplate.option(:yes, long: '--yes')
+    Chef::Knife.run %W(linode server delete #{node}), KnifeCliTemplate.options
+    Chef::Knife.run %W(node delete #{node}), KnifeCliTemplate.options
   end
 end

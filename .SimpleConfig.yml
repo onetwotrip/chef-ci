@@ -1,0 +1,19 @@
+---
+chef:
+  apikey: false
+  url: 'https://chef_url.com'
+deploy:
+  count: '1'
+  save: false
+  maintain: true
+  chef:
+    version: '12.6.0'
+    role: 'search'
+    env: 'develop'
+  linode:
+    image: 'linode-image'
+    kernel: '124'
+    datacenter: '7'
+    flavor: '4'
+linode:
+  apikey: false
