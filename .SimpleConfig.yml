@@ -1,4 +1,5 @@
 ---
+workdir: '/config'
 chef:
   apikey: false
   url: 'https://chef_url.com'
