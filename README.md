@@ -1,5 +1,10 @@
 # NodeUp
 
+## Badges
+
+[![Docker Repository on Quay](https://quay.io/repository/12trip/node-bootstrap/status "Docker Repository on Quay")](https://quay.io/repository/12trip/node-bootstrap)
+[![Travis build status](https://api.travis-ci.org/onetwotrip/linode-nodeup.svg?branch=master "Travis build status")](https://travis-ci.org/onetwotrip/linode-nodeup)
+
 ## Usage
 
 Example:
