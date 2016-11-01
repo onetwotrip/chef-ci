@@ -4,7 +4,7 @@ require 'chef/config'
 require 'simple_config'
 require 'node'
 
-env_file = "#{SimpleConfig.workdir}/nodedown.parameters"
+env_file = "env.parameters"
 File.delete env_file if File.exist? env_file
 
 nodes = []
