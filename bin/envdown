@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+require "pathname"
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile",
+                                             Pathname.new(__FILE__).realpath)
+
+require "bundler/setup"
+
+require 'chef/config'
+require 'simple_config'
+require 'mixlib/cli'
+require 'chef/knife'
+require 'git'
+require 'logger'
+require 'fileutils'
+
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, datetime, progname, msg|
+  date_format = datetime.strftime("%Y-%m-%d %H:%M:%S")
+  "[#{date_format}] [#{severity}] #{msg}\n"
+end
+
+# Vars
+environment = "ci-runner-#{rand(36**6).to_s(36)}"
+branch = SimpleConfig.git.branch.match(/origin\/(.*)/)[1]
+pwd = Dir.pwd
+status = true
+
+# Knife Opts
+class KnifeCliTemplate
+  include Mixlib::CLI
+end
+KnifeCliTemplate.option(:yes, long: '--yes')
+KnifeCliTemplate.option(:disable_editing, long: '--disable-editing', :boolean => true)
+
+# Git
+logger.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
+system "git init"
+system "git rev-parse --is-inside-work-tree"
+system "git config remote.origin.url #{SimpleConfig.git.url}"
+system "git -c core.askpass=true fetch --tags --progress git@gitlab.twiket.com:chef/chef.git +refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*"
+system "git checkout -f #{SimpleConfig.git.commit}"
+logger.info("Git: clone done")
+
+# Get cookbooks
+logger.info("Cookbooks: search modified cookbooks")
+cookbooks = `git diff --name-only origin/develop`.split(/\n/).
+              grep(/cookbooks\/(.*)\//).
+              map{|f| f.match(/cookbooks\/([a-z\-\_]*)\//)[1] }.uniq
+logger.info("Cookbooks: Find changes in: #{cookbooks}")
+
+if cookbooks.any?
+  # Create environment
+  logger.info("Chef: create environment #{environment}")
+  Chef::Knife.run %W( environment create #{environment} --disable-editing), KnifeCliTemplate.options
+
+  # Update environment
+  Dir.chdir "berks"
+  logger.info("Berks: install")
+  system "bundle exec berks install -q"
+  logger.info("Berks: update versions from #{branch}")
+  system({"BERKS_TWIKET_BRANCH" => branch}, "bundle exec berks update #{cookbooks.join(' ')} -q")
+  logger.info("Berks: apply versions to #{environment}")
+  system "bundle exec berks apply #{environment} -q"
+  Dir.chdir pwd
+
+  # NodeUp/Down
+  cookbooks.each do |cookbook|
+    Dir.chdir "cookbooks/#{cookbook}"
+    status &= system({
+      "CHEF_URL" => SimpleConfig.chef.url,
+      "CHEF_APIUSER" => SimpleConfig.chef.apiuser,
+      "CHEF_APIKEY" => SimpleConfig.chef.apikey,
+      "CHEF_ENV" => environment,
+    }, "vagrant up")
+    system "vagrant destroy -f"
+    Dir.chdir pwd
+  end
+
+  # Delete environment
+  logger.info("Chef: delete environment #{environment}")
+  Chef::Knife.run %W( environment delete #{environment} --yes), KnifeCliTemplate.options
+else
+  logger.info("Skip testing: no changes.")
+end
+
+# ExitStatus
+exit 1 unless status

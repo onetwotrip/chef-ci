@@ -7,13 +7,6 @@ require 'node'
 env_file = "#{SimpleConfig.workdir}/nodedown.parameters"
 File.delete env_file if File.exist? env_file
 
-Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = "#{SimpleConfig.workdir}/#{SimpleConfig.chef.apikey}"
-Chef::Config[:chef_server_url] = SimpleConfig.chef.url
-Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
-Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.env
-Chef::Config[:knife][:yes] = ''
-
 nodes = []
 threads = []
 SimpleConfig.deploy.count.to_i.times do
