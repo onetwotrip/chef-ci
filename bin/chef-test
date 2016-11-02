@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+require 'pathname'
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
+require 'bundler/setup'
+
+require 'chef/config'
+require 'simple_config'
+require 'mixlib/cli'
+require 'chef/knife'
+require 'logger'
+require 'fileutils'
+
+require 'env'
+require 'cookbooks'
+require 'node'
+
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, datetime, _progname, msg|
+  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
+  "[#{date_format}] [#{severity}] #{msg}\n"
+end
+
+# Vars
+branch = SimpleConfig.git.branch.match(%r{origin/(.*)})[1]
+pwd = Dir.pwd
+status = true
+
+# Get cookbooks
+logger.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
+cookbooks = Cookbooks.get_changes(SimpleConfig.git.url, SimpleConfig.git.commit)
+logger.info("Cookbooks: Find changes in: #{cookbooks}")
+
+if cookbooks.any?
+  # Create environment
+  chef_env = Env.new
+  chef_env.create
+  logger.info("Chef: create environment #{chef_env.name}")
+
+  # Update environment
+  logger.info("Berks: update #{chef_env.name} environment from #{branch}")
+  Dir.chdir 'berks'
+  chef_env.update(branch, cookbooks)
+  Dir.chdir pwd
+
+  # NodeUp/Down
+  cookbooks.each do |cookbook|
+    config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
+    config['chef']['env'] = chef_env.name
+    logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
+    node = Node.new
+    node.create SimpleConfig::Config.new.get_struct config
+    logger.info("Deploy: Destroy #{node.name}")
+    node.delete
+    status &= node.status
+  end
+  # Delete environment
+  logger.info("Chef: delete environment #{chef_env.name}")
+  chef_env.delete
+else
+  logger.info('Skip testing: no changes.')
+end
+
+# ExitStatus
+exit 1 unless status
