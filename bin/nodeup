@@ -1,18 +1,14 @@
 #!/usr/bin/env ruby
+require 'pathname'
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
 require 'bundler/setup'
+
 require 'chef/config'
 require 'simple_config'
 require 'node'
 
-env_file = "#{SimpleConfig.workdir}/nodedown.parameters"
+env_file = 'env.parameters'
 File.delete env_file if File.exist? env_file
-
-Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = "#{SimpleConfig.workdir}/#{SimpleConfig.chef.apikey}"
-Chef::Config[:chef_server_url] = SimpleConfig.chef.url
-Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
-Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.env
-Chef::Config[:knife][:yes] = ''
 
 nodes = []
 threads = []

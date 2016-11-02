@@ -1,15 +1,11 @@
 #!/usr/bin/env ruby
+require 'pathname'
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
 require 'bundler/setup'
+
 require 'chef/config'
 require 'simple_config'
 require 'node'
-
-Chef::Config[:node_name] = 'docker-ci-runner'
-Chef::Config[:client_key] = "#{SimpleConfig.workdir}/#{SimpleConfig.chef.apikey}"
-Chef::Config[:chef_server_url] = SimpleConfig.chef.url
-Chef::Config[:knife][:linode_api_key] = SimpleConfig.linode.apikey
-Chef::Config[:knife][:environment] = SimpleConfig.deploy.chef.env
-Chef::Config[:knife][:yes] = ''
 
 puts 'Destroyed the following node:'.green
 SimpleConfig.nodes.split.each do |name|

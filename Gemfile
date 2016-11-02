@@ -3,6 +3,7 @@ gem 'knife-linode', git: 'https://github.com/onetwotrip/knife-linode.git'
 gem 'chef'
 gem 'colorize'
 gem 'SimpleConfig', git: 'https://github.com/onetwotrip/SimpleConfig'
+gem 'berkshelf'
 
 group :development do
   gem 'overcommit'

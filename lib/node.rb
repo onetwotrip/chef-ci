@@ -26,7 +26,7 @@ class Node
       --linode-flavor #{params.linode.flavor}
       --linode-node-name #{@name}
       --node-name #{@name}
-      --bootstrap-template templates/twiket-bootstrap)
+      --bootstrap-template /twiket-bootstrap)
     begin
       Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
