@@ -35,6 +35,7 @@ status = true
 # Get cookbooks
 logger.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
 cookbooks = Cookbooks.get_changes(SimpleConfig.git.url, SimpleConfig.git.commit)
+cookbooks.select! {|c| File.exist?("cookbooks/#{c}/ci.yml") }
 logger.info("Cookbooks: Find changes in: #{cookbooks}")
 
 if cookbooks.any?
