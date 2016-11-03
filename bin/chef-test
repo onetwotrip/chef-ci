@@ -13,11 +13,18 @@ require 'fileutils'
 require 'env'
 require 'cookbooks'
 require 'node'
+require 'colorize'
 
 logger = Logger.new(STDOUT)
 logger.formatter = proc do |severity, datetime, _progname, msg|
   date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-  "[#{date_format}] [#{severity}] #{msg}\n"
+  if severity == 'INFO'
+    "[#{date_format}] [#{severity}] #{msg}\n".green
+  elsif severity == 'WARN'
+    "[#{date_format}] [#{severity}] #{msg}\n".red
+  else
+    "[#{date_format}] [#{severity}] #{msg}\n"
+  end
 end
 
 # Vars
@@ -44,7 +51,11 @@ if cookbooks.any?
 
   # NodeUp/Down
   cookbooks.each do |cookbook|
-    config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
+    begin
+      config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
+    rescue Errno::ENOENT
+      logger.warn "Deploy SKIPPED: config not found (cookbooks/#{cookbook}/ci.yml)"
+    end
     config['chef']['env'] = chef_env.name
     logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
     node = Node.new
