@@ -7,8 +7,6 @@ require 'chef/config'
 require 'simple_config'
 require 'node'
 
-puts 'Destroyed the following node:'.green
 SimpleConfig.nodes.split.each do |name|
-  puts name.green
   Node.new.delete(name)
 end

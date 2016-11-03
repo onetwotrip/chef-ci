@@ -34,12 +34,14 @@ class Node
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
+      delete unless params.save
     else
       @status = true
     end
   end
 
   def delete(node = @name)
+    puts "Destroy node: #{name}".green
     KnifeCliTemplate.option(:yes, long: '--yes')
     Chef::Knife.run %W(linode server delete #{node}), KnifeCliTemplate.options
     Chef::Knife.run %W(node delete #{node}), KnifeCliTemplate.options
