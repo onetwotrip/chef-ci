@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Node do
   before do
     @params = SimpleConfig.deploy
+    @params.save = true
   end
   before :each do
     @node = described_class.new
