@@ -18,7 +18,6 @@ class Node
     @status = false
     args = %W(
       linode server create
-      --bootstrap-version #{params.chef.version}
       -r role[#{params.chef.role}]
       --environment #{params.chef.env}
       --linode-image #{params.linode.image}
@@ -28,6 +27,7 @@ class Node
       --linode-node-name #{@name}
       --node-name #{@name}
       --bootstrap-template /twiket-bootstrap)
+    args.concat %W(--bootstrap-version #{params.chef.version}) if params.chef.version
     begin
       Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
