@@ -20,6 +20,7 @@ class Node
       linode server create
       --bootstrap-version #{params.chef.version}
       -r role[#{params.chef.role}]
+      --environment #{params.chef.env}
       --linode-image #{params.linode.image}
       --linode-kernel #{params.linode.kernel}
       --linode-datacenter #{params.linode.datacenter}

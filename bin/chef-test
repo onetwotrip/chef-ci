@@ -58,6 +58,7 @@ if cookbooks.any?
       next
     end
     config['chef']['env'] = chef_env.name
+    config['maintain'] = true
     logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
     node = Node.new
     node.create SimpleConfig::Config.new.get_struct config
