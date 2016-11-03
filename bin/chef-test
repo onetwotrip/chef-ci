@@ -56,6 +56,7 @@ if cookbooks.any?
 
   # NodeUp/Down
   cookbooks.each do |cookbook|
+    config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     config['chef']['env'] = chef_env.name
     config['maintain'] = true
     logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
