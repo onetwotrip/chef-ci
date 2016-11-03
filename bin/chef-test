@@ -55,6 +55,7 @@ if cookbooks.any?
       config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     rescue Errno::ENOENT
       logger.warn "Deploy SKIPPED: config not found (cookbooks/#{cookbook}/ci.yml)"
+      next
     end
     config['chef']['env'] = chef_env.name
     logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
