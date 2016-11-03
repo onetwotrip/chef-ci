@@ -2,7 +2,7 @@
 
 ## Badges
 
-[![Docker Repository on Quay](https://quay.io/repository/12trip/node-bootstrap/status "Docker Repository on Quay")](https://quay.io/repository/12trip/node-bootstrap)
+[![Docker Repository on Quay](https://quay.io/repository/12trip/chef-ci/status "Docker Repository on Quay")](https://quay.io/repository/12trip/chef-ci)
 [![Travis build status](https://api.travis-ci.org/onetwotrip/chef-ci.svg?branch=master "Travis build status")](https://travis-ci.org/onetwotrip/chef-ci)
 
 ## Usage
