@@ -52,6 +52,8 @@ if cookbooks.any?
   logger.info("Berks: update #{chef_env.name} environment from #{branch}")
   Dir.chdir 'berks'
   chef_env.update(branch, cookbooks)
+  logger.info("Berks: created environment #{chef_env.name}")
+  chef_env.show
   Dir.chdir pwd
 
   # NodeUp/Down

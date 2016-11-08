@@ -25,6 +25,10 @@ class Env
     system "bundle exec berks apply #{@name} -q"
   end
 
+  def show(env = @name)
+    Chef::Knife.run %W( environment show #{env})
+  end
+
   def delete(env = @name)
     KnifeCliTemplate.option(:yes, long: '--yes')
     Chef::Knife.run %W( environment delete #{env}), KnifeCliTemplate.options
