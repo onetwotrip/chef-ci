@@ -4,6 +4,9 @@
 
 [![Docker Repository on Quay](https://quay.io/repository/12trip/chef-ci/status "Docker Repository on Quay")](https://quay.io/repository/12trip/chef-ci)
 [![Travis build status](https://api.travis-ci.org/onetwotrip/chef-ci.svg?branch=master "Travis build status")](https://travis-ci.org/onetwotrip/chef-ci)
+[![Code Climate](https://codeclimate.com/github/onetwotrip/chef-ci/badges/gpa.svg)](https://codeclimate.com/github/onetwotrip/chef-ci)
+[![Test Coverage](https://codeclimate.com/github/onetwotrip/chef-ci/badges/coverage.svg)](https://codeclimate.com/github/onetwotrip/chef-ci/coverage)
+[![Issue Count](https://codeclimate.com/github/onetwotrip/chef-ci/badges/issue_count.svg)](https://codeclimate.com/github/onetwotrip/chef-ci)
 
 ## Usage
 

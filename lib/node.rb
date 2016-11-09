@@ -35,7 +35,6 @@ class Node
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
-      delete unless params.save
     else
       @status = true
     end
