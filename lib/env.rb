@@ -16,7 +16,7 @@ class Env
     @name = "ci#{rand(36**3).to_s(36)}"
     KnifeCliTemplate.option(:yes, long: '--yes')
     KnifeCliTemplate.option(:disable_editing, long: '--disable-editing', boolean: true)
-    Chef::Knife.run %W( environment create #{@name} --disable-editing), KnifeCliTemplate.options
+    Chef::Knife.run %W(environment create #{@name} --disable-editing), KnifeCliTemplate.options
   end
 
   def update(branch, cookbooks)
@@ -26,11 +26,11 @@ class Env
   end
 
   def show(env = @name)
-    Chef::Knife.run %W( environment show #{env})
+    Chef::Knife.run %W(environment show #{env})
   end
 
   def delete(env = @name)
     KnifeCliTemplate.option(:yes, long: '--yes')
-    Chef::Knife.run %W( environment delete #{env}), KnifeCliTemplate.options
+    Chef::Knife.run %W(environment delete #{env}), KnifeCliTemplate.options
   end
 end

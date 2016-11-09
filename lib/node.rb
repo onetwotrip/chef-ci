@@ -26,7 +26,8 @@ class Node
       --linode-flavor #{params.linode.flavor}
       --linode-node-name #{@name}
       --node-name #{@name}
-      --bootstrap-template /twiket-bootstrap)
+      --bootstrap-template /twiket-bootstrap
+    )
     args.concat %W(--bootstrap-version #{params.chef.version}) if params.chef.version
     begin
       Chef::Knife.run args
