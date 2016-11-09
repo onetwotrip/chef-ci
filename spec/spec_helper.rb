@@ -1,14 +1,11 @@
 require 'bundler/setup'
 require 'simple_config'
 require 'simplecov'
+require 'node'
 
 SimpleCov.start do
   SimpleCov.minimum_coverage_by_file 95
 end
-require 'codeclimate-test-reporter'
-CodeClimate::TestReporter.start
-
-require 'node'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
