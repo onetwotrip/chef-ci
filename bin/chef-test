@@ -61,7 +61,7 @@ if cookbooks.any?
     config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     config['chef']['env'] = chef_env.name
     config['maintain'] = true
-    logger.info("Deploy: Create cookbook - #{cookbook} role - #{config['chef']['role']} environment - #{config['chef']['env']}")
+    logger.info("Deploy: using cookbook #{cookbook} with config: #{config}")
     node = Node.new
     node.create SimpleConfig::Config.new.get_struct config
     logger.info("Deploy: Destroy #{node.name}")
