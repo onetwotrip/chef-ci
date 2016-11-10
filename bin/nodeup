@@ -22,16 +22,16 @@ SimpleConfig.deploy.count.to_i.times do
 end
 threads.each(&:join)
 
-deployed = nodes.select(&:status).map(&:name)
-rejected = nodes.reject(&:status).map(&:name)
+deployed = nodes.select(&:status)
+rejected = nodes.reject(&:status)
 
 puts 'Bootstrapped the following nodes:'.green if deployed.any?
-deployed.each { |node| puts node.green }
+deployed.each { |node| puts node.name.green }
 
 puts 'Failed the following nodes:'.red if rejected.any?
-rejected.each { |node| puts node.red }
-
-if rejected.any?
-  File.write(env_file, "nodes=#{rejected.join(' ')}") unless SimpleConfig.deploy.save
-  exit 1
+rejected.each do |node|
+  puts node.name.red
+  puts node.output
 end
+
+exit 1 if rejected.any?

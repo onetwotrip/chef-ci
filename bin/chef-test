@@ -30,7 +30,6 @@ end
 # Vars
 branch = SimpleConfig.git.branch.match(%r{origin/(.*)})[1]
 pwd = Dir.pwd
-status = true
 
 # Get cookbooks
 logger.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
@@ -57,17 +56,21 @@ if cookbooks.any?
   Dir.chdir pwd
 
   # NodeUp/Down
+  nodes = []
+  threads = []
   cookbooks.each do |cookbook|
     config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     config['chef']['env'] = chef_env.name
     config['maintain'] = true
     logger.info("Deploy: using cookbook #{cookbook} with config: #{config}")
     node = Node.new
-    node.create SimpleConfig::Config.new.get_struct config
-    logger.info("Deploy: Destroy #{node.name}")
-    node.delete
-    status &= node.status
+    threads << Thread.new do
+      node.create SimpleConfig::Config.new.get_struct config
+      nodes.push node
+      node.delete
+    end
   end
+  threads.each(&:join)
   # Delete environment
   logger.info("Chef: delete environment #{chef_env.name}")
   chef_env.delete
@@ -75,5 +78,16 @@ else
   logger.info('Skip testing: no changes.')
 end
 
-# ExitStatus
-exit 1 unless status
+deployed = nodes.select(&:status)
+rejected = nodes.reject(&:status)
+
+puts 'Passed the following nodes:'.green if deployed.any?
+deployed.each { |node| puts node.name.green }
+
+puts 'Failed the following nodes:'.red if rejected.any?
+rejected.each do |node|
+  puts node.name.red
+  puts node.output
+end
+
+exit 1 if rejected.any?

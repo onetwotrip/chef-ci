@@ -11,7 +11,7 @@ end
 ##
 # This class represents Node
 class Node
-  attr_reader :name, :status
+  attr_reader :name, :status, :output
 
   def create(params)
     @name = "#{params.chef.env}-#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
@@ -30,7 +30,9 @@ class Node
     )
     args.concat %W(--bootstrap-version #{params.chef.version}) if params.chef.version
     begin
-      Chef::Knife.run args
+      @output = with_captured_stdout do
+        Chef::Knife.run args
+      end
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
@@ -45,5 +47,18 @@ class Node
     KnifeCliTemplate.option(:yes, long: '--yes')
     Chef::Knife.run %W(linode server delete #{node}), KnifeCliTemplate.options
     Chef::Knife.run %W(node delete #{node}), KnifeCliTemplate.options
+  end
+
+  private
+
+  def with_captured_stdout
+    begin
+      old_stdout = $stdout
+      $stdout = StringIO.new('', 'w')
+      yield
+      $stdout.string
+    ensure
+      $stdout = old_stdout
+    end
   end
 end
