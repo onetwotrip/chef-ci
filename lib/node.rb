@@ -31,7 +31,6 @@ class Node
       --bootstrap-version #{params.chef.version}
     )
     begin
-      puts "Bootstrap node with cmd:\n#{args.join(' ')}"
       @output = system_call args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue SystemExit, StandardError => e
