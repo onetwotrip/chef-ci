@@ -19,7 +19,7 @@ class Node
     @status = false
     args = %W(
       knife linode server create
-      -r role[#{params.chef.role}]
+      -r 'role[#{params.chef.role}]'
       --environment #{params.chef.env}
       --linode-image #{params.linode.image}
       --linode-kernel #{params.linode.kernel}
