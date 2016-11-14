@@ -27,8 +27,8 @@ class Node
       --linode-node-name #{@name}
       --node-name #{@name}
       --bootstrap-template /twiket-bootstrap
+      --bootstrap-version #{params.chef.version}
     )
-    args.concat %W(--bootstrap-version #{params.chef.version}) if params.chef.version
     begin
       @output = with_captured_stdout do
         Chef::Knife.run args
