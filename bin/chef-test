@@ -78,8 +78,6 @@ else
   logger.info('Skip testing: no changes.')
 end
 
-puts nodes.inspect
-
 deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
@@ -89,7 +87,7 @@ deployed.each { |node| logger.info node.name }
 logger.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
   logger.warn node.name
-  puts node.output
+  puts node.output.inspect
 end
 
 exit 1 if rejected.any?

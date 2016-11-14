@@ -30,9 +30,8 @@ class Node
       --bootstrap-version #{params.chef.version}
     )
     begin
-      @output = with_captured_stdout do
-        Chef::Knife.run args
-      end
+      @output = args
+      Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
