@@ -20,7 +20,7 @@ describe Node do
       expect(Chef::Knife).to receive(:run).with(
         array_including(%w(tag create maintain))
       ).and_return true
-      expect { @node.create @params }.to_not output.to_stdout
+      @node.create @params
       expect(@node.output).to eq 'System_call output'
       expect(@node.status).to be_truthy
     end
