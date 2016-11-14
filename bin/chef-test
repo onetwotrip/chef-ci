@@ -78,15 +78,17 @@ else
   logger.info('Skip testing: no changes.')
 end
 
+puts nodes.inspect
+
 deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
-puts 'Passed the following nodes:'.green if deployed.any?
-deployed.each { |node| puts node.name.green }
+logger.info 'Passed the following nodes:' if deployed.any?
+deployed.each { |node| logger.info node.name }
 
-puts 'Failed the following nodes:'.red if rejected.any?
+logger.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
-  puts node.name.red
+  logger.warn node.name
   puts node.output
 end
 
