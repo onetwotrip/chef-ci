@@ -1,6 +1,7 @@
 require 'chef/knife'
 require 'colorize'
 require 'mixlib/cli'
+require 'open3'
 
 ##
 # This class represents Knife options
@@ -17,7 +18,7 @@ class Node
     @name = "#{params.chef.env}-#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
     @status = false
     args = %W(
-      linode server create
+      knife linode server create
       -r role[#{params.chef.role}]
       --environment #{params.chef.env}
       --linode-image #{params.linode.image}
@@ -30,12 +31,13 @@ class Node
       --bootstrap-version #{params.chef.version}
     )
     begin
-      @output = args
-      Chef::Knife.run args
+      @output = system_call args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue SystemExit, StandardError => e
       puts "Catch exception of type: #{e.class}".red
       puts "Message: #{e.message}".red
+    rescue RuntimeError => e
+      @output = e.message
     else
       @status = true
     end
@@ -59,5 +61,10 @@ class Node
     ensure
       $stdout = old_stdout
     end
+  end
+
+  def system_call(cmd)
+    stdout, status = Open3.capture2e cmd
+    raise stdout unless status.success?
   end
 end

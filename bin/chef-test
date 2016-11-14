@@ -87,7 +87,7 @@ deployed.each { |node| logger.info node.name }
 logger.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
   logger.warn node.name
-  puts node.output.inspect
+  puts node.output
 end
 
 exit 1 if rejected.any?
