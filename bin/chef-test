@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 require 'pathname'
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
+app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
+log_path = "#{app_path}/logs"
+gem_file = "#{app_path}/Gemfile"
+ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
 require 'chef/config'
@@ -66,6 +69,7 @@ if cookbooks.any?
     node = Node.new
     threads << Thread.new do
       node.create SimpleConfig::Config.new.get_struct config
+      File.write("#{log_path}/#{node.name}.log", node.output)
       nodes.push node
       node.delete
     end
@@ -87,7 +91,6 @@ deployed.each { |node| logger.info node.name }
 logger.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
   logger.warn node.name
-  puts node.output
 end
 
 exit 1 if rejected.any?

@@ -20,19 +20,21 @@ describe Node do
       expect(Chef::Knife).to receive(:run).with(
         array_including(%w(tag create maintain))
       ).and_return true
-      expect { @node.create @params }.to_not output.to_stdout
+      @node.create @params
       expect(@node.output).to eq 'System_call output'
       expect(@node.status).to be_truthy
     end
     {
-      SystemExit => 'SystemExitMsg',
-      StandardError => 'StandardErrorMsg',
+      SystemExit => 'ExitMsg',
+      StandardError => 'ErrorMsg',
     }.each do |err, err_msg|
       it "falsey if nodeup failed with #{err_msg}" do
         allow_any_instance_of(Node).to receive(:system_call).with(
           include('linode server create')
         ).and_raise(err, err_msg)
-        expect { @node.create @params }.to output(/#{err_msg}/).to_stdout
+        @node.create @params
+        expect(@node.output).to include err_msg
+        expect(@node.output).to include err.to_s
         expect(@node.status).to be_falsey
       end
     end

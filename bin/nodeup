@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 require 'pathname'
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
+app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
+log_path = "#{app_path}/logs"
+gem_file = "#{app_path}/Gemfile"
+ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
 require 'chef/config'
 require 'simple_config'
 require 'node'
-
-env_file = 'env.parameters'
-File.delete env_file if File.exist? env_file
 
 nodes = []
 threads = []
@@ -16,6 +16,7 @@ SimpleConfig.deploy.count.to_i.times do
   node = Node.new
   threads << Thread.new do
     node.create SimpleConfig.deploy
+    File.write("#{log_path}/#{node.name}.log", node.output)
     nodes.push node
     node.delete if !node.status && !SimpleConfig.deploy.save
   end
@@ -31,7 +32,6 @@ deployed.each { |node| puts node.name.green }
 puts 'Failed the following nodes:'.red if rejected.any?
 rejected.each do |node|
   puts node.name.red
-  puts node.output
 end
 
 exit 1 if rejected.any?
