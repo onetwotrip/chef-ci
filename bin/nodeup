@@ -6,10 +6,24 @@ gem_file = "#{app_path}/Gemfile"
 ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
-require 'colorize'
 require 'chef/config'
+require 'colorize'
+require 'logger'
 require 'simple_config'
+
 require 'node'
+
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, datetime, _progname, msg|
+  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
+  if severity == 'INFO'
+    "[#{date_format}] [#{severity}] #{msg}\n".green
+  elsif severity == 'WARN'
+    "[#{date_format}] [#{severity}] #{msg}\n".red
+  else
+    "[#{date_format}] [#{severity}] #{msg}\n"
+  end
+end
 
 nodes = []
 threads = []
@@ -27,12 +41,10 @@ threads.each(&:join)
 deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
-puts 'Bootstrapped the following nodes:'.green if deployed.any?
-deployed.each { |node| puts node.name.green }
+logger.info 'Bootstrapped the following nodes:' if deployed.any?
+deployed.each { |node| logger.info node.name }
 
-puts 'Failed the following nodes:'.red if rejected.any?
-rejected.each do |node|
-  puts node.name.red
-end
+logger.warn 'Failed the following nodes:' if rejected.any?
+rejected.each { |node| logger.warn node.name }
 
 exit 1 if rejected.any?

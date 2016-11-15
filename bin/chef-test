@@ -7,16 +7,16 @@ ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
 require 'chef/config'
-require 'simple_config'
-require 'mixlib/cli'
 require 'chef/knife'
-require 'logger'
-require 'fileutils'
-
-require 'env'
-require 'cookbooks'
-require 'node'
 require 'colorize'
+require 'fileutils'
+require 'logger'
+require 'mixlib/cli'
+require 'simple_config'
+
+require 'cookbooks'
+require 'env'
+require 'node'
 
 logger = Logger.new(STDOUT)
 logger.formatter = proc do |severity, datetime, _progname, msg|
