@@ -6,6 +6,7 @@ gem_file = "#{app_path}/Gemfile"
 ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
+require 'colorize'
 require 'chef/config'
 require 'simple_config'
 require 'node'
@@ -16,7 +17,7 @@ SimpleConfig.deploy.count.to_i.times do
   node = Node.new
   threads << Thread.new do
     node.create SimpleConfig.deploy
-    File.write("#{log_path}/#{node.name}.log", node.output)
+    File.write("#{log_path}/build_#{node.name}.log", node.output)
     nodes.push node
     node.delete if !node.status && !SimpleConfig.deploy.save
   end
