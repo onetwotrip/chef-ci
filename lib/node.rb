@@ -19,7 +19,7 @@ class Node
   ].freeze
 
   def create(params)
-    @name = "#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
+    @name = "api-#{params.chef.env}-#{rand(36**6).to_s(36)}".tr('_', '-')
     puts "Create node: #{@name}"
     @status = false
     args = %W(
