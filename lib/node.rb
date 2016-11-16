@@ -19,7 +19,14 @@ class Node
   ].freeze
 
   def create(params)
-    @name = "api-#{params.chef.env}-#{rand(36**6).to_s(36)}".tr('_', '-')
+    case params.chef.role
+    when "api-search-ng"
+      prefix = "api"
+    when "api-common-ng"
+      prefix = "common"
+    end
+    
+    @name = "#{prefix}-#{params.chef.env}-#{rand(36**6).to_s(36)}".tr('_', '-')
     puts "Create node: #{@name}"
     @status = false
     args = %W(
