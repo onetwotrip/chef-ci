@@ -42,7 +42,10 @@ deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
 logger.info 'Bootstrapped the following nodes:' if deployed.any?
-deployed.each { |node| logger.info node.name }
+deployed.each do |node|
+  logger.info node.name
+  logger.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
+end
 
 logger.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
