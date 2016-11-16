@@ -24,6 +24,8 @@ class Node
       prefix = "api"
     when "api-common-ng"
       prefix = "common"
+    when "api-rzd-ng"
+      prefix = "rzd"
     end
     
     @name = "#{prefix}-#{params.chef.env}-#{rand(36**6).to_s(36)}".tr('_', '-')
