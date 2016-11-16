@@ -28,8 +28,8 @@ end
 nodes = []
 threads = []
 SimpleConfig.deploy.count.to_i.times do
-  node = Node.new
   threads << Thread.new do
+    node = Node.new(autogen: SimpleConfig.deploy.chef.role)
     node.create SimpleConfig.deploy
     File.write("#{log_path}/build_#{node.name}.log", node.output)
     nodes.push node

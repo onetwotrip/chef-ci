@@ -18,10 +18,14 @@ class Node
     StandardError,
   ].freeze
 
-  def create(params)
-    @name = "#{params.chef.role}-#{rand(36**6).to_s(36)}".tr('_', '-')
-    puts "Create node: #{@name}"
+  def initialize(name: nil, autogen: nil)
+    raise ArgumentError, 'wrong number of arguments (name: or autogen:)' unless name || autogen
+    @name = (name || "#{autogen}-#{rand(36**6).to_s(36)}").tr('_', '-')
     @status = false
+  end
+
+  def create(params)
+    puts "Create node: #{@name}"
     args = %W(
       knife linode server create
       -r 'role[#{params.chef.role}]'
@@ -40,16 +44,17 @@ class Node
       Chef::Knife.run %W(tag create #{@name} maintain) if params.maintain
     rescue *HandleExceptions => e
       @output = "Catch exception of type: #{e.class}\n#{e.message}"
+      @status = false
     else
       @status = true
     end
   end
 
-  def delete(node = @name)
-    puts "Destroy node: #{name}"
+  def delete
+    puts "Destroy node: #{@name}"
     KnifeCliTemplate.option(:yes, long: '--yes')
-    Chef::Knife.run %W(linode server delete #{node}), KnifeCliTemplate.options
-    Chef::Knife.run %W(node delete #{node}), KnifeCliTemplate.options
+    Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options
+    Chef::Knife.run %W(node delete #{@name}), KnifeCliTemplate.options
   end
 
   private

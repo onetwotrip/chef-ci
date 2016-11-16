@@ -8,5 +8,5 @@ require 'simple_config'
 require 'node'
 
 SimpleConfig.nodes.split.each do |name|
-  Node.new.delete(name)
+  Node.new(name: name).delete
 end

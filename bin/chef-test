@@ -66,9 +66,10 @@ if cookbooks.any?
     config['chef']['env'] = chef_env.name
     config['maintain'] = true
     logger.info("Deploy: using cookbook #{cookbook} with config: #{config}")
-    node = Node.new
     threads << Thread.new do
-      node.create SimpleConfig::Config.new.get_struct config
+      sc_config = SimpleConfig::Config.new.get_struct config
+      node = Node.new(autogen: sc_config.chef.role)
+      node.create sc_config
       File.write("#{log_path}/#{node.name}.log", node.output)
       nodes.push node
       node.delete
