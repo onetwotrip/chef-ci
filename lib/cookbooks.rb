@@ -7,6 +7,6 @@ class Cookbooks
     system 'git -c core.askpass=true fetch --tags --progress git@gitlab.twiket.com:chef/chef.git \
             +refs/heads/*:refs/remotes/origin/*'
     system "git checkout -f #{commit}"
-    `git diff --name-only origin/develop`.split(/\n/).grep(%r{cookbooks/(.*)/}).map { |f| f.match(%r{cookbooks/([a-z\-_]*)/})[1] }.uniq
+    `git diff --name-only origin/develop`.split(/\n/).grep(%r{cookbooks/(.*)/}).map { |f| f.match(%r{cookbooks/([\w-]+)/})[1] }.uniq
   end
 end
