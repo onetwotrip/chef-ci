@@ -70,7 +70,7 @@ if cookbooks.any?
       sc_config = SimpleConfig::Config.new.get_struct config
       node = Node.new(autogen: sc_config.chef.role)
       node.create sc_config
-      File.write("#{log_path}/#{node.name}.log", node.output)
+      File.write("#{log_path}/build_#{node.name}.log", node.output)
       nodes.push node
       node.delete
     end
