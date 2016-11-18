@@ -55,6 +55,7 @@ class Node
     KnifeCliTemplate.option(:yes, long: '--yes')
     Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options
     Chef::Knife.run %W(node delete #{@name}), KnifeCliTemplate.options
+    Chef::Knife.run %W(client delete #{@name}), KnifeCliTemplate.options
   end
 
   private

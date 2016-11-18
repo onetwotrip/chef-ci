@@ -59,6 +59,7 @@ describe Node do
       [
         %w(linode server delete),
         %w(node delete),
+        %w(client delete),
       ].each do |knife_cmd|
         allow(Chef::Knife).to receive(:run).with(
           array_including(knife_cmd),
