@@ -20,7 +20,8 @@ class Node
 
   def initialize(name: nil, autogen: nil)
     raise ArgumentError, 'wrong number of arguments (name: or autogen:)' unless name || autogen
-    @name = (name || "#{autogen}-#{rand(36**6).to_s(36)}").tr('_', '-')
+    salt = Array.new(6) { (Array('a'..'z') + Array(0..9)).sample }.join
+    @name = (name || "#{autogen}-#{salt}").tr('_', '-')
     @status = false
   end
 
