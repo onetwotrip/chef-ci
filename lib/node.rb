@@ -20,7 +20,7 @@ class Node
 
   def initialize(name: nil, autogen: nil)
     raise ArgumentError, 'wrong number of arguments (name: or autogen:)' unless name || autogen
-    salt = Array.new(6) { (Array('a'..'z') + Array(0..9)).sample }.join
+    salt = (Array('a'..'z') + Array(0..9)).sample(6).join
     @name = (name || "#{autogen}-#{salt}").tr('_', '-')
     @status = false
   end
