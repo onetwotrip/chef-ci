@@ -13,6 +13,13 @@ require 'simple_config'
 
 require 'node'
 
+# Vars
+nodes         = []
+threads       = []
+deploy_params = SimpleConfig.deploy
+node_count    = ENV['NODE_NAME'].empty? ? SimpleConfig.deploy.count.to_i : 1
+node_name     = ENV['NODE_NAME'].empty? ? { autogen: SimpleConfig.deploy.chef.role } : { name: ENV['NODE_NAME'].gsub(/\s+/, '') }
+
 logger = Logger.new(STDOUT)
 logger.formatter = proc do |severity, datetime, _progname, msg|
   date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
@@ -25,15 +32,13 @@ logger.formatter = proc do |severity, datetime, _progname, msg|
   end
 end
 
-nodes = []
-threads = []
-SimpleConfig.deploy.count.to_i.times do
+node_count.times do
   threads << Thread.new do
-    node = Node.new(autogen: SimpleConfig.deploy.chef.role)
-    node.create SimpleConfig.deploy
+    node = Node.new node_name
+    node.create deploy_params
     File.write("#{log_path}/build_#{node.name}.log", node.output)
     nodes.push node
-    node.delete if !node.status && !SimpleConfig.deploy.save
+    node.delete if !node.status && !deploy_params.save
   end
 end
 threads.each(&:join)
