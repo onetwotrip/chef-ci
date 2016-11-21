@@ -39,7 +39,18 @@ else
 end
 if node.status
   logger.info "Success bootstrap: #{node.name}"
+  if ENV['JENKINS_WSLOG_URL']
+    logger.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+  else
+    puts File.read("#{log_path}/build_#{node.name}.log")
+  end
 else
   logger.warn "Failed bootstrap: #{node.name}"
-  exit 1
+  if ENV['JENKINS_WSLOG_URL']
+    logger.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+  else
+    puts File.read("#{log_path}/build_#{node.name}.log")
+  end
 end
+
+exit 1 unless node.status
