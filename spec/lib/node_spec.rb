@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Node do
-  before do
-    @params = SimpleConfig.deploy
-    @params.save = true
-  end
-
   describe '.new' do
+    before :each do
+      allow_any_instance_of(Node).to receive(:system_call).with(
+        include('knife node show')
+      ).and_return '{}'
+    end
     it 'Raise ArgumentError without args' do
       expect { described_class.new }.to raise_error(ArgumentError)
     end
@@ -21,8 +21,11 @@ describe Node do
   end
 
   describe '.status' do
-    node = described_class.new(name: 'test_name')
     it 'falsey by default' do
+      allow_any_instance_of(Node).to receive(:system_call).with(
+        include('knife node show')
+      ).and_return '{}'
+      node = described_class.new(name: 'test_name')
       expect(node.status).to be_falsey
     end
     it 'truthy if nodeup passed' do
@@ -30,10 +33,7 @@ describe Node do
       allow_any_instance_of(Node).to receive(:system_call).with(
         include('linode server create')
       ).and_return 'System_call output'
-      expect(Chef::Knife).to receive(:run).with(
-        array_including(%w(tag create maintain))
-      ).and_return true
-      node.create @params
+      node.create(flavor: 2)
       expect(node.output).to eq 'System_call output'
       expect(node.status).to be_truthy
     end
@@ -42,10 +42,11 @@ describe Node do
       StandardError => 'ErrorMsg',
     }.each do |err, err_msg|
       it "falsey if nodeup failed with #{err_msg}" do
+        node = described_class.new(autogen: 'gen_name')
         allow_any_instance_of(Node).to receive(:system_call).with(
           include('linode server create')
         ).and_raise(err, err_msg)
-        node.create @params
+        node.create(flavor: 2)
         expect(node.output).to include err_msg
         expect(node.output).to include err.to_s
         expect(node.status).to be_falsey

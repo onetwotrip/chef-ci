@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+require 'pathname'
+app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
+log_path = "#{app_path}/logs"
+gem_file = "#{app_path}/Gemfile"
+ENV['BUNDLE_GEMFILE'] ||= gem_file
+require 'bundler/setup'
+
+require 'chef/config'
+require 'colorize'
+require 'logger'
+require 'simple_config'
+
+require 'node'
+
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, datetime, _progname, msg|
+  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
+  if severity == 'INFO'
+    "[#{date_format}] [#{severity}] #{msg}\n".green
+  elsif severity == 'WARN'
+    "[#{date_format}] [#{severity}] #{msg}\n".red
+  else
+    "[#{date_format}] [#{severity}] #{msg}\n"
+  end
+end
+
+# Vars
+node_name = ENV['NODE_NAME']
+
+if node_name.nil? || node_name.empty?
+  logger.warn 'NODE_NAME is empty'
+  exit 1
+else
+  node = Node.new(name: node_name)
+  node.delete
+  node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'])
+  File.write("#{log_path}/build_#{node.name}.log", node.output)
+end
+if node.status
+  logger.info "Success bootstrap: #{node.name}"
+else
+  logger.warn "Failed bootstrap: #{node.name}"
+  exit 1
+end

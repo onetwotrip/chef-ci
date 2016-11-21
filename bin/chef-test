@@ -62,14 +62,16 @@ if cookbooks.any?
 
   # NodeUp/Down
   cookbooks.each do |cookbook|
-    config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
-    config['chef']['env'] = chef_env.name
-    config['maintain'] = true
+    ci_config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     logger.info("Deploy: using cookbook #{cookbook} with config: #{config}")
     threads << Thread.new do
-      sc_config = SimpleConfig::Config.new.get_struct config
-      node = Node.new(autogen: sc_config.chef.role)
-      node.create sc_config
+      node              = Node.new(autogen: ci_config.chef.role)
+      node.role         = ci_config['chef']['role']
+      node.env          = chef_env.name
+      node.chef_version = ci_config['chef']['version']
+      node.image        = ci_config['linode']['image']
+
+      node.create(flavor: ci_config['linode']['flavor'], maintain: true)
       File.write("#{log_path}/build_#{node.name}.log", node.output)
       nodes.push node
       node.delete
