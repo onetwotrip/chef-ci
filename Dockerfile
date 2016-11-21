@@ -7,7 +7,6 @@ RUN echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 
 RUN mkdir /root/.chef
 COPY ./config/knife.rb /root/.chef/
-COPY ./templates/twiket-bootstrap /twiket-bootstrap
 
 RUN mkdir /opt/chef-ci
 COPY . /opt/chef-ci

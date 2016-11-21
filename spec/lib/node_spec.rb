@@ -33,7 +33,7 @@ describe Node do
       allow_any_instance_of(Node).to receive(:system_call).with(
         include('linode server create')
       ).and_return 'System_call output'
-      node.create(flavor: 2)
+      node.create(flavor: 2, template: 'bootstrap_tmp')
       expect(node.output).to eq 'System_call output'
       expect(node.status).to be_truthy
     end
@@ -46,7 +46,7 @@ describe Node do
         allow_any_instance_of(Node).to receive(:system_call).with(
           include('linode server create')
         ).and_raise(err, err_msg)
-        node.create(flavor: 2)
+        node.create(flavor: 2, template: 'bootstrap_tmp')
         expect(node.output).to include err_msg
         expect(node.output).to include err.to_s
         expect(node.status).to be_falsey

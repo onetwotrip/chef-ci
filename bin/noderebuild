@@ -34,7 +34,7 @@ if node_name.nil? || node_name.empty?
 else
   node = Node.new(name: node_name)
   node.delete
-  node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'])
+  node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'], template: bootstrap_template)
   File.write("#{log_path}/build_#{node.name}.log", node.output)
 end
 if node.status

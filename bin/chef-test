@@ -3,6 +3,7 @@ require 'pathname'
 app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
 log_path = "#{app_path}/logs"
 gem_file = "#{app_path}/Gemfile"
+bootstrap_template = "#{app_path}/templates/twiket-bootstrap"
 ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
@@ -71,7 +72,9 @@ if cookbooks.any?
       node.chef_version = ci_config['chef']['version']
       node.image        = ci_config['linode']['image']
 
-      node.create(flavor: ci_config['linode']['flavor'], maintain: true)
+      node.create(flavor: ci_config['linode']['flavor'],
+                  template: bootstrap_template,
+                  maintain: true)
       File.write("#{log_path}/build_#{node.name}.log", node.output)
       nodes.push node
       node.delete

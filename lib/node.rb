@@ -21,6 +21,8 @@ class Node
   def initialize(name: nil, autogen: nil)
     raise ArgumentError, 'wrong number of arguments (name: or autogen:)' unless name || autogen
     @status = false
+    @kernel = 138
+    @datacenter = 7
     if name
       @name = name.tr('_', '-')
       node_attr = show
@@ -29,8 +31,6 @@ class Node
         @env = node_attr['chef_environment']
         @chef_version = node_attr['automatic']['chef_packages']['chef']['version']
         @image = node_attr['automatic']['platform_version'].eql?('14.04') ? 124 : 146
-        @kernel = 138
-        @datacenter = 7
       end
     else
       salt = (Array('a'..'z') + Array(0..9)).sample(6).join
@@ -38,7 +38,7 @@ class Node
     end
   end
 
-  def create(flavor:, maintain: false, datacenter: @datacenter)
+  def create(flavor:, template:, maintain: false, datacenter: @datacenter)
     puts "Create node: #{@name}"
     args = %W(
       knife linode server create
@@ -50,10 +50,12 @@ class Node
       --linode-flavor #{flavor}
       --linode-node-name #{@name}
       --node-name #{@name}
-      --bootstrap-template /twiket-bootstrap
+      --bootstrap-template #{template}
       --bootstrap-version #{@chef_version}
     )
     begin
+      puts 'Bootstrap with following command:'
+      puts args.join(' ')
       @output = system_call args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if maintain
     rescue *HandleExceptions => e
@@ -65,7 +67,11 @@ class Node
   end
 
   def show
-    JSON.parse system_call("knife node show #{@name} -F json -l")
+    begin
+      JSON.parse system_call("knife node show #{@name} -F json -l")
+    rescue RuntimeError
+      {}
+    end
   end
 
   def delete
