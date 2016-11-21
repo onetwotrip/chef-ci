@@ -64,7 +64,7 @@ if cookbooks.any?
   # NodeUp/Down
   cookbooks.each do |cookbook|
     ci_config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
-    logger.info("Deploy: using cookbook #{cookbook} with config: #{config}")
+    logger.info("Deploy: using cookbook #{cookbook} with config: #{ci_config}")
     threads << Thread.new do
       node              = Node.new(autogen: ci_config.chef.role)
       node.role         = ci_config['chef']['role']
