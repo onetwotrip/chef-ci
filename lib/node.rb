@@ -23,19 +23,8 @@ class Node
     @status = false
     @kernel = 138
     @datacenter = 7
-    if name
-      @name = name.tr('_', '-')
-      node_attr = show
-      unless node_attr.empty?
-        @role = node_attr['run_list'].first.match(/role\[([\w-]+)\]/)[1]
-        @env = node_attr['chef_environment']
-        @chef_version = node_attr['automatic']['chef_packages']['chef']['version']
-        @image = node_attr['automatic']['platform_version'].eql?('14.04') ? 124 : 146
-      end
-    else
-      salt = (Array('a'..'z') + Array(0..9)).sample(6).join
-      @name = "#{autogen}-#{salt}".tr('_', '-')
-    end
+    salt = (Array('a'..'z') + Array(0..9)).sample(6).join
+    @name = name ? name.tr('_', '-') : "#{autogen}-#{salt}".tr('_', '-')
   end
 
   def create(flavor:, template:, maintain: false, datacenter: @datacenter)
@@ -74,6 +63,25 @@ class Node
     end
   end
 
+  def get
+    node_attr = show
+    attrs = {}
+    unless node_attr.empty?
+      attrs[:role] = node_attr['run_list'].first.match(/role\[([\w-]+)\]/)[1]
+      attrs[:env] = node_attr['chef_environment']
+      attrs[:chef_version] = node_attr['automatic']['chef_packages']['chef']['version']
+      attrs[:image] = node_attr['automatic']['platform_version'].eql?('14.04') ? 124 : 146
+    end
+    attrs
+  end
+
+  def set(params)
+    @role         = params[:role]
+    @env          = params[:env]
+    @chef_version = params[:chef_version]
+    @image        = params[:image]
+  end
+
   def delete
     puts "Destroy node: #{@name}"
     KnifeCliTemplate.option(:yes, long: '--yes')
@@ -83,17 +91,6 @@ class Node
   end
 
   private
-
-  def with_captured_stdout
-    begin
-      old_stdout = $stdout
-      $stdout = StringIO.new('', 'w')
-      yield
-      $stdout.string
-    ensure
-      $stdout = old_stdout
-    end
-  end
 
   def system_call(cmd)
     stdout, status = Open3.capture2e cmd

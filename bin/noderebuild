@@ -33,8 +33,11 @@ if node_name.nil? || node_name.empty?
   logger.warn 'NODE_NAME is empty'
   exit 1
 else
+  old_node = Node.new(name: node_name)
+  old_node_attrs = node.get
+  old_node.delete
   node = Node.new(name: node_name)
-  node.delete
+  node.set old_node_attrs
   node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'], template: bootstrap_template)
   File.write("#{log_path}/build_#{node.name}.log", node.output)
 end
