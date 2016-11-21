@@ -3,6 +3,7 @@ require 'pathname'
 app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
 log_path = "#{app_path}/logs"
 gem_file = "#{app_path}/Gemfile"
+bootstrap_template = "#{app_path}/templates/twiket-bootstrap"
 ENV['BUNDLE_GEMFILE'] ||= gem_file
 require 'bundler/setup'
 
