@@ -66,7 +66,7 @@ if cookbooks.any?
     ci_config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
     logger.info("Deploy: using cookbook #{cookbook} with config: #{ci_config}")
     threads << Thread.new do
-      node              = Node.new(autogen: ci_config.chef.role)
+      node              = Node.new(autogen: ci_config['chef']['role'])
       node.role         = ci_config['chef']['role']
       node.env          = chef_env.name
       node.chef_version = ci_config['chef']['version']
