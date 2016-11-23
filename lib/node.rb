@@ -42,16 +42,11 @@ class Node
       --bootstrap-template #{template}
       --bootstrap-version #{@chef_version}
     )
-    begin
+    rescue_knife do
       puts 'Bootstrap with following command:'
       puts args.join(' ')
       @output = system_call args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if maintain
-    rescue *HandleExceptions => e
-      @output = "Catch exception of type: #{e.class}\n#{e.message}"
-      @status = false
-    else
-      @status = true
     end
   end
 
@@ -85,9 +80,9 @@ class Node
   def delete
     puts "Destroy node: #{@name}"
     KnifeCliTemplate.option(:yes, long: '--yes')
-    Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options
-    Chef::Knife.run %W(node delete #{@name}), KnifeCliTemplate.options
-    Chef::Knife.run %W(client delete #{@name}), KnifeCliTemplate.options
+    rescue_knife { Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options }
+    rescue_knife { Chef::Knife.run %W(node delete #{@name}), KnifeCliTemplate.options }
+    rescue_knife { Chef::Knife.run %W(client delete #{@name}), KnifeCliTemplate.options }
   end
 
   private
@@ -96,5 +91,16 @@ class Node
     stdout, status = Open3.capture2e cmd
     raise stdout unless status.success?
     stdout
+  end
+
+  def rescue_knife(&block)
+    begin
+      yield(block)
+    rescue *HandleExceptions => e
+      @output = "Catch exception of type: #{e.class}\n#{e.message}"
+      @status = false
+    else
+      @status = true
+    end
   end
 end
