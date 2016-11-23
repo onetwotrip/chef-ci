@@ -1,16 +1,10 @@
 require 'chef/knife'
-require 'mixlib/cli'
 require 'open3'
-
-##
-# This class represents Knife options
-class KnifeCliTemplate
-  include Mixlib::CLI
-end
 
 ##
 # This class represents Node
 class Node
+  load 'knife_cli_template.rb'
   attr_reader :status, :output
   attr_accessor :name, :role, :env,
                 :chef_version,
@@ -79,10 +73,9 @@ class Node
 
   def delete
     puts "Destroy node: #{@name}"
-    KnifeCliTemplate.option(:yes, long: '--yes')
     rescue_knife { Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options }
-    rescue_knife { Chef::Knife.run %W(node delete #{@name}), KnifeCliTemplate.options }
-    rescue_knife { Chef::Knife.run %W(client delete #{@name}), KnifeCliTemplate.options }
+    rescue_knife { Chef::Knife.run %W(node delete #{@name} --yes), KnifeCliTemplate.options }
+    rescue_knife { Chef::Knife.run %W(client delete #{@name} --yes), KnifeCliTemplate.options }
   end
 
   private

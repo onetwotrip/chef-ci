@@ -1,22 +1,14 @@
 require 'chef/knife'
-require 'mixlib/cli'
-
-##
-# This class represents Knife options
-class KnifeCliTemplate
-  include Mixlib::CLI
-end
 
 ##
 # This class represents chef environment
 class Env
+  load 'knife_cli_template.rb'
   attr_reader :name
 
   def create
     @name = "ci#{rand(36**3).to_s(36)}"
-    KnifeCliTemplate.option(:yes, long: '--yes')
-    KnifeCliTemplate.option(:disable_editing, long: '--disable-editing', boolean: true)
-    Chef::Knife.run %W(environment create #{@name} --disable-editing), KnifeCliTemplate.options
+    Chef::Knife.run %W(environment create #{@name} --disable-editing --yes), KnifeCliTemplate.options
   end
 
   def update(branch, cookbooks)
@@ -30,7 +22,6 @@ class Env
   end
 
   def delete(env = @name)
-    KnifeCliTemplate.option(:yes, long: '--yes')
-    Chef::Knife.run %W(environment delete #{env}), KnifeCliTemplate.options
+    Chef::Knife.run %W(environment delete #{env} --yes), KnifeCliTemplate.options
   end
 end
