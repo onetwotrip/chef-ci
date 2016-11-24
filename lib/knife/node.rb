@@ -83,7 +83,7 @@ class Node < KnifeFabric
                else
                  raise ArgumentError, 'wrong number of arguments (name: or autogen:)'
                end
-    check_hostname hostname.tr!('_', '-')
+    check_hostname hostname.tr('_', '-')
   end
 
   def check_hostname(hostname)
