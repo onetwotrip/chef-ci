@@ -10,12 +10,10 @@ class Node < KnifeFabric
                 :image, :kernel
 
   def initialize(name: nil, autogen: nil)
-    raise ArgumentError, 'wrong number of arguments (name: or autogen:)' unless name || autogen
+    @name = gen_name(name, autogen)
     @status = false
     @kernel = 138
     @datacenter = 7
-    salt = (Array('a'..'z') + Array(0..9)).sample(6).join
-    @name = name ? name.tr('_', '-') : "#{autogen}-#{salt}".tr('_', '-')
   end
 
   def create(flavor:, template:, maintain: false, datacenter: @datacenter)
@@ -71,5 +69,20 @@ class Node < KnifeFabric
     rescue_knife { Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options }
     rescue_knife { Chef::Knife.run %W(node delete #{@name} --yes), KnifeCliTemplate.options }
     rescue_knife { Chef::Knife.run %W(client delete #{@name} --yes), KnifeCliTemplate.options }
+  end
+
+  private
+
+  def gen_name(name, autogen)
+    hostname = if name
+                 name
+               elsif autogen.to_s.include? '*'
+                 autogen.gsub '*', (Array('a'..'z') + Array(0..9)).sample(6).join
+               elsif !autogen.to_s.include? '*'
+                 raise ArgumentError, 'autogen: not contains required symbol *'
+               else
+                 raise ArgumentError, 'wrong number of arguments (name: or autogen:)'
+               end
+    hostname.tr('_', '-')
   end
 end

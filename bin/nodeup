@@ -5,8 +5,15 @@ require_relative '../lib/common_libs'
 nodes         = []
 threads       = []
 deploy_params = SimpleConfig.deploy
-node_count    = ENV['NODE_NAME'].empty? ? SimpleConfig.deploy.count.to_i : 1
-node_name     = ENV['NODE_NAME'].empty? ? { autogen: SimpleConfig.deploy.chef.role } : { name: ENV['NODE_NAME'].gsub(/\s+/, '') }
+node_count = SimpleConfig.deploy.count.to_i
+if ENV['NODE_NAME'].to_s.empty?
+  node_name  = { autogen: "#{SimpleConfig.deploy.chef.role}-*" }
+elsif ENV['NODE_NAME'].include? '*'
+  node_name  = { autogen: ENV['NODE_NAME'] }
+else
+  node_name  = { name: ENV['NODE_NAME'].gsub(/\s+/, '') }
+  node_count = 1
+end
 
 node_count.times do
   threads << Thread.new do

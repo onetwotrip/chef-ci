@@ -9,13 +9,14 @@ describe Node do
     end
     it 'Raise ArgumentError without args' do
       expect { described_class.new }.to raise_error(ArgumentError)
+      expect { described_class.new(autogen: 'gen_name') }.to raise_error(ArgumentError)
     end
     it 'with :name arg' do
       node = described_class.new(name: 'test_node')
       expect(node.name).to eq 'test-node'
     end
     it 'with :role arg' do
-      node = described_class.new(autogen: 'gen_name')
+      node = described_class.new(autogen: 'gen_name-*')
       expect(node.name).to match(/gen-name-(\w{6})/)
     end
   end
@@ -29,7 +30,7 @@ describe Node do
       expect(node.status).to be_falsey
     end
     it 'truthy if nodeup passed' do
-      node = described_class.new(autogen: 'gen_name')
+      node = described_class.new(autogen: 'gen_name-*')
       allow_any_instance_of(Node).to receive(:system_call).with(
         include('linode server create')
       ).and_return 'System_call output'
@@ -42,7 +43,7 @@ describe Node do
       StandardError => 'ErrorMsg',
     }.each do |err, err_msg|
       it "falsey if nodeup failed with #{err_msg}" do
-        node = described_class.new(autogen: 'gen_name')
+        node = described_class.new(autogen: 'gen_name-*')
         allow_any_instance_of(Node).to receive(:system_call).with(
           include('linode server create')
         ).and_raise(err, err_msg)
@@ -55,7 +56,7 @@ describe Node do
   end
 
   describe '.delete' do
-    node = described_class.new(autogen: 'gen_name')
+    node = described_class.new(autogen: 'gen_name-*')
     it 'truthy on delete' do
       [
         %w(linode server delete),
@@ -72,7 +73,7 @@ describe Node do
   end
 
   describe '.system_call' do
-    node = described_class.new(autogen: 'gen_name')
+    node = described_class.new(autogen: 'gen_name-*')
     it 'return true with stdout' do
       expect(node).to receive(:system_call).with(any_args).and_return 'stdout'
       node.send(:system_call, 'echo stdout; true')
