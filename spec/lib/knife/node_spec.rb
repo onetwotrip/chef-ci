@@ -12,6 +12,7 @@ describe Node do
       expect { described_class.new(autogen: 'gen_name') }.to raise_error(ArgumentError) # autogen without symbol *
       expect { described_class.new(name: '*')           }.to raise_error(ArgumentError) # name with dangerous symbol *
       expect { described_class.new(name: 'test')        }.to raise_error(ArgumentError) # name with short name
+      described_class.new(name: 'test-name')
     end
     it 'with :name arg' do
       node = described_class.new(name: 'test_node')
