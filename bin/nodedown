@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
-require 'bundler/setup'
-require 'common_libs'
+require_relative '../lib/common_libs'
 
 SimpleConfig.nodes.split.each do |name|
   Node.new(name: name).delete

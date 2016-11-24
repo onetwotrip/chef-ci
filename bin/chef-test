@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
-require 'bundler/setup'
-require 'common_libs'
+require_relative '../lib/common_libs'
 
 # Vars
 branch = SimpleConfig.git.branch.match(%r{origin/(.*)})[1]
