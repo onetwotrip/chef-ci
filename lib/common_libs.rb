@@ -1,5 +1,3 @@
-require 'bundler/setup'
-
 require 'chef/config'
 require 'chef/knife'
 require 'colorize'

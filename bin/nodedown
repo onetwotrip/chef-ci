@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'bundler/setup'
 require 'common_libs'
 
 SimpleConfig.nodes.split.each do |name|

@@ -1,6 +1,6 @@
 require 'bundler/setup'
-require 'simplecov'
 require 'common_libs'
+require 'simplecov'
 
 SimpleCov.start do
   SimpleCov.minimum_coverage_by_file 95
