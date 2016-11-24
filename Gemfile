@@ -4,6 +4,7 @@ gem 'chef'
 gem 'colorize'
 gem 'SimpleConfig', git: 'https://github.com/onetwotrip/SimpleConfig'
 gem 'berkshelf'
+gem 'sourcify'
 
 group :development do
   gem 'overcommit'

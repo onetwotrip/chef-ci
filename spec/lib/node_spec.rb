@@ -46,9 +46,9 @@ describe Node do
         allow_any_instance_of(Node).to receive(:system_call).with(
           include('linode server create')
         ).and_raise(err, err_msg)
-        node.create(flavor: 2, template: 'bootstrap_tmp')
-        expect(node.output).to include err_msg
-        expect(node.output).to include err.to_s
+        cmd = proc { node.create(flavor: 3, template: 'bootstrap_tmp') }
+        expect(cmd).to output(/#{err_msg}/).to_stdout
+        expect(cmd).to output(/#{err.to_s}/).to_stdout
         expect(node.status).to be_falsey
       end
     end

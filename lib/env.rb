@@ -1,9 +1,9 @@
 require 'chef/knife'
+require 'knife_fabric'
 
 ##
 # This class represents chef environment
-class Env
-  load 'knife_cli_template.rb'
+class Env < KnifeFabric
   attr_reader :name
 
   def create
