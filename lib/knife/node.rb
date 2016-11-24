@@ -42,11 +42,9 @@ class Node < KnifeFabric
   end
 
   def show
-    begin
-      JSON.parse system_call("knife node show #{@name} -F json -l")
-    rescue RuntimeError
-      {}
-    end
+    JSON.parse system_call("knife node show #{@name} -F json -l")
+  rescue RuntimeError
+    {}
   end
 
   def get

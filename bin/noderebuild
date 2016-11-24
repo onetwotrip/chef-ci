@@ -1,36 +1,11 @@
 #!/usr/bin/env ruby
-require 'pathname'
-app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
-log_path = "#{app_path}/logs"
-gem_file = "#{app_path}/Gemfile"
-bootstrap_template = "#{app_path}/templates/twiket-bootstrap"
-ENV['BUNDLE_GEMFILE'] ||= gem_file
-require 'bundler/setup'
-
-require 'chef/config'
-require 'colorize'
-require 'logger'
-require 'simple_config'
-
-require 'node'
-
-logger = Logger.new(STDOUT)
-logger.formatter = proc do |severity, datetime, _progname, msg|
-  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-  if severity == 'INFO'
-    "[#{date_format}] [#{severity}] #{msg}\n".green
-  elsif severity == 'WARN'
-    "[#{date_format}] [#{severity}] #{msg}\n".red
-  else
-    "[#{date_format}] [#{severity}] #{msg}\n"
-  end
-end
+require 'common_libs'
 
 # Vars
 node_name = ENV['NODE_NAME']
 
 if node_name.nil? || node_name.empty?
-  logger.warn 'NODE_NAME is empty'
+  LOGGER.warn 'NODE_NAME is empty'
   exit 1
 else
   old_node = Node.new(name: node_name)
@@ -39,21 +14,21 @@ else
   node = Node.new(name: node_name)
   node.set old_node_attrs
   node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'], template: bootstrap_template)
-  File.write("#{log_path}/build_#{node.name}.log", node.output)
+  File.write("#{LOG_PATH}/build_#{node.name}.log", node.output)
 end
 if node.status
-  logger.info "Success bootstrap: #{node.name}"
+  LOGGER.info "Success bootstrap: #{node.name}"
   if ENV['JENKINS_WSLOG_URL']
-    logger.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+    LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{log_path}/build_#{node.name}.log")
+    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
   end
 else
-  logger.warn "Failed bootstrap: #{node.name}"
+  LOGGER.warn "Failed bootstrap: #{node.name}"
   if ENV['JENKINS_WSLOG_URL']
-    logger.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+    LOGGER.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{log_path}/build_#{node.name}.log")
+    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
   end
 end
 

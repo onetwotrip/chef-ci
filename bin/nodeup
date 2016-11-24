@@ -1,30 +1,5 @@
 #!/usr/bin/env ruby
-require 'pathname'
-app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
-log_path = "#{app_path}/logs"
-gem_file = "#{app_path}/Gemfile"
-bootstrap_template = "#{app_path}/templates/twiket-bootstrap"
-ENV['BUNDLE_GEMFILE'] ||= gem_file
-require 'bundler/setup'
-
-require 'chef/config'
-require 'colorize'
-require 'logger'
-require 'simple_config'
-
-require 'node'
-
-logger = Logger.new(STDOUT)
-logger.formatter = proc do |severity, datetime, _progname, msg|
-  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-  if severity == 'INFO'
-    "[#{date_format}] [#{severity}] #{msg}\n".green
-  elsif severity == 'WARN'
-    "[#{date_format}] [#{severity}] #{msg}\n".red
-  else
-    "[#{date_format}] [#{severity}] #{msg}\n"
-  end
-end
+require 'common_libs'
 
 # Vars
 nodes         = []
@@ -41,9 +16,9 @@ node_count.times do
     node.chef_version = deploy_params.chef.version
     node.image        = deploy_params.linode.image
     node.create(flavor: deploy_params.linode.flavor,
-                template: bootstrap_template,
+                template: BOOTSTRAP_TEMPLATE,
                 maintain: deploy_params.maintain)
-    File.write("#{log_path}/build_#{node.name}.log", node.output)
+    File.write("#{LOG_PATH}/build_#{node.name}.log", node.output)
     nodes.push node
     node.delete if !node.status && !deploy_params.save
   end
@@ -53,23 +28,23 @@ threads.each(&:join)
 deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
-logger.info 'Bootstrapped the following nodes:' if deployed.any?
+LOGGER.info 'Bootstrapped the following nodes:' if deployed.any?
 deployed.each do |node|
-  logger.info node.name
+  LOGGER.info node.name
   if ENV['JENKINS_WSLOG_URL']
-    logger.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+    LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{log_path}/build_#{node.name}.log")
+    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
   end
 end
 
-logger.warn 'Failed the following nodes:' if rejected.any?
+LOGGER.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
-  logger.warn node.name
+  LOGGER.warn node.name
   if ENV['JENKINS_WSLOG_URL']
-    logger.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
+    LOGGER.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{log_path}/build_#{node.name}.log")
+    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
   end
 end
 

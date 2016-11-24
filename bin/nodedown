@@ -1,11 +1,5 @@
 #!/usr/bin/env ruby
-require 'pathname'
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', Pathname.new(__FILE__).realpath)
-require 'bundler/setup'
-
-require 'chef/config'
-require 'simple_config'
-require 'node'
+require 'common_libs'
 
 SimpleConfig.nodes.split.each do |name|
   Node.new(name: name).delete

@@ -1,49 +1,19 @@
 #!/usr/bin/env ruby
-require 'pathname'
-app_path = File.expand_path('../../', Pathname.new(__FILE__).realpath)
-log_path = "#{app_path}/logs"
-gem_file = "#{app_path}/Gemfile"
-bootstrap_template = "#{app_path}/templates/twiket-bootstrap"
-ENV['BUNDLE_GEMFILE'] ||= gem_file
-require 'bundler/setup'
-
-require 'chef/config'
-require 'chef/knife'
-require 'colorize'
-require 'fileutils'
-require 'logger'
-require 'mixlib/cli'
-require 'simple_config'
-
-require 'cookbooks'
-require 'env'
-require 'node'
-
-logger = Logger.new(STDOUT)
-logger.formatter = proc do |severity, datetime, _progname, msg|
-  date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
-  if severity == 'INFO'
-    "[#{date_format}] [#{severity}] #{msg}\n".green
-  elsif severity == 'WARN'
-    "[#{date_format}] [#{severity}] #{msg}\n".red
-  else
-    "[#{date_format}] [#{severity}] #{msg}\n"
-  end
-end
+require 'common_libs'
 
 # Vars
 branch = SimpleConfig.git.branch.match(%r{origin/(.*)})[1]
 pwd = Dir.pwd
 
 # Get cookbooks
-logger.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
+LOGGER.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
 cookbooks = Cookbooks.get_changes(SimpleConfig.git.url, SimpleConfig.git.commit)
 
-logger.info("Cookbooks: Find changes in: #{cookbooks}")
+LOGGER.info("Cookbooks: Find changes in: #{cookbooks}")
 skipped_cookbooks = cookbooks.reject { |c| File.exist?("cookbooks/#{c}/ci.yml") }
 cookbooks.select! { |c| File.exist?("cookbooks/#{c}/ci.yml") }
-logger.info("Cookbooks: test #{cookbooks}") if cookbooks.any?
-logger.warn("Cookbooks: skip #{skipped_cookbooks}") if skipped_cookbooks.any?
+LOGGER.info("Cookbooks: test #{cookbooks}") if cookbooks.any?
+LOGGER.warn("Cookbooks: skip #{skipped_cookbooks}") if skipped_cookbooks.any?
 
 nodes = []
 threads = []
@@ -51,20 +21,20 @@ if cookbooks.any?
   # Create environment
   chef_env = Env.new
   chef_env.create
-  logger.info("Chef: create environment #{chef_env.name}")
+  LOGGER.info("Chef: create environment #{chef_env.name}")
 
   # Update environment
-  logger.info("Berks: update #{chef_env.name} environment from #{branch}")
+  LOGGER.info("Berks: update #{chef_env.name} environment from #{branch}")
   Dir.chdir 'berks'
   chef_env.update(branch, cookbooks)
-  logger.info("Berks: created environment #{chef_env.name}")
+  LOGGER.info("Berks: created environment #{chef_env.name}")
   chef_env.show
   Dir.chdir pwd
 
   # NodeUp/Down
   cookbooks.each do |cookbook|
     ci_config = YAML.load(File.read("cookbooks/#{cookbook}/ci.yml"))
-    logger.info("Deploy: using cookbook #{cookbook} with config: #{ci_config}")
+    LOGGER.info("Deploy: using cookbook #{cookbook} with config: #{ci_config}")
     threads << Thread.new do
       node              = Node.new(autogen: ci_config['chef']['role'])
       node.role         = ci_config['chef']['role']
@@ -73,34 +43,34 @@ if cookbooks.any?
       node.image        = ci_config['linode']['image']
 
       node.create(flavor: ci_config['linode']['flavor'],
-                  template: bootstrap_template,
+                  template: BOOTSTRAP_TEMPLATE,
                   maintain: true)
-      File.write("#{log_path}/build_#{node.name}.log", node.output)
+      File.write("#{LOG_PATH}/build_#{node.name}.log", node.output)
       nodes.push node
       node.delete
     end
   end
   threads.each(&:join)
   # Delete environment
-  logger.info("Chef: delete environment #{chef_env.name}")
+  LOGGER.info("Chef: delete environment #{chef_env.name}")
   chef_env.delete
 else
-  logger.info('Skip testing: no changes.')
+  LOGGER.info('Skip testing: no changes.')
 end
 
 deployed = nodes.select(&:status)
 rejected = nodes.reject(&:status)
 
-logger.info 'Passed the following nodes:' if deployed.any?
+LOGGER.info 'Passed the following nodes:' if deployed.any?
 deployed.each do |node|
-  logger.info node.name
-  logger.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
+  LOGGER.info node.name
+  LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
 end
 
-logger.warn 'Failed the following nodes:' if rejected.any?
+LOGGER.warn 'Failed the following nodes:' if rejected.any?
 rejected.each do |node|
-  logger.warn node.name
-  logger.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
+  LOGGER.warn node.name
+  LOGGER.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
 end
 
 exit 1 if rejected.any?
