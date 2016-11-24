@@ -7,9 +7,11 @@ describe Node do
         include('knife node show')
       ).and_return '{}'
     end
-    it 'Raise ArgumentError without args' do
-      expect { described_class.new }.to raise_error(ArgumentError)
-      expect { described_class.new(autogen: 'gen_name') }.to raise_error(ArgumentError)
+    it 'Raise ArgumentError wit wrong args' do
+      expect { described_class.new                      }.to raise_error(ArgumentError) # No args
+      expect { described_class.new(autogen: 'gen_name') }.to raise_error(ArgumentError) # autogen without symbol *
+      expect { described_class.new(name: '*')           }.to raise_error(ArgumentError) # name with dangerous symbol *
+      expect { described_class.new(name: 'test')        }.to raise_error(ArgumentError) # name with short name
     end
     it 'with :name arg' do
       node = described_class.new(name: 'test_node')

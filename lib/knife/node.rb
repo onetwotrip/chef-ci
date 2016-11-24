@@ -83,6 +83,11 @@ class Node < KnifeFabric
                else
                  raise ArgumentError, 'wrong number of arguments (name: or autogen:)'
                end
-    hostname.tr('_', '-')
+    check_hostname hostname.tr!('_', '-')
+  end
+
+  def check_hostname(hostname)
+    raise ArgumentError, "incorrect hostname #{hostname}" unless hostname =~ /^([A-Za-z0-9\-]){6,64}$/
+    hostname
   end
 end
