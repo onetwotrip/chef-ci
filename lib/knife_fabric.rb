@@ -16,11 +16,19 @@ class KnifeFabric
   attr_reader :status
   attr_accessor :logfile
 
+  def initialize
+    @status = true
+  end
+
   def logfile
     @logfile || 'logs/logfile.log'
   end
 
   private
+
+  def status=(val)
+    @status &= val
+  end
 
   def run_with_log(cmd)
     io = File.open(logfile, 'w')
@@ -37,12 +45,12 @@ class KnifeFabric
   end
 
   def rescue_knife(&block)
-    yield(block)
+    yield
   rescue *HandleExceptions => e
     puts "[ERROR] Failed on:\n#{block.to_source.split("\n").map { |l| "[ERROR] #{l}" }.join("\n")}"
     puts "[ERROR] Catch exception of type: #{e.class}\n#{e.message}"
-    @status = false
+    self.status = false
   else
-    @status = true
+    self.status = true
   end
 end

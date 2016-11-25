@@ -36,4 +36,15 @@ describe KnifeFabric do
       expect(@knife_fabric.send(:run_with_out, '>&2 printf stderr; false')).to eq 'stderr'
     end
   end
+
+  describe 'rescue_knife' do
+    it 'status true' do
+      expect(@knife_fabric.status).to be_truthy
+    end
+    it 'check fail status' do
+      block = proc { raise RuntimeError }
+      @knife_fabric.send(:rescue_knife, &block)
+      expect(@knife_fabric.status).to be_falsey
+    end
+  end
 end

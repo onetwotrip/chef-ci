@@ -25,12 +25,9 @@ describe Node do
   end
 
   describe '.status' do
-    it 'falsey by default' do
-      allow_any_instance_of(Node).to receive(:run_with_out).with(
-        include('knife node show')
-      ).and_return '{}'
+    it 'thruthy by default' do
       node = described_class.new(name: 'test_name')
-      expect(node.status).to be_falsey
+      expect(node.status).to be_truthy
     end
     it 'truthy if nodeup passed' do
       node = described_class.new(autogen: 'gen_name-*')

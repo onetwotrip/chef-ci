@@ -1,10 +1,7 @@
 require 'bundler/setup'
-require 'common_libs'
 require 'simplecov'
-
-SimpleCov.start do
-  SimpleCov.minimum_coverage_by_file 95
-end
+SimpleCov.start
+require 'common_libs'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

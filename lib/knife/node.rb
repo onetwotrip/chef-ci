@@ -10,9 +10,9 @@ class Node < KnifeFabric
 
   def initialize(name: nil, autogen: nil)
     @name = gen_name(name, autogen)
-    @status = false
     @kernel = 138
     @datacenter = 7
+    super()
   end
 
   def create(flavor:, template:, maintain: false, datacenter: @datacenter)
@@ -29,8 +29,8 @@ class Node < KnifeFabric
       --bootstrap-template #{template}
       --bootstrap-version #{@chef_version}
     )
+    self.status = run_with_log args.join(' ') # Chef::Knife.run args
     rescue_knife do
-      @status = run_with_log args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if maintain
     end
   end
