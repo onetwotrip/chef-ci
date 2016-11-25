@@ -2,5 +2,6 @@
 require_relative '../lib/common_libs'
 
 SimpleConfig.nodes.split.each do |name|
+  LOGGER.info "Destroy node: #{name}"
   Node.new(name: name).delete
 end

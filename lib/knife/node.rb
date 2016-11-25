@@ -16,7 +16,6 @@ class Node < KnifeFabric
   end
 
   def create(flavor:, template:, maintain: false, datacenter: @datacenter)
-    puts "Create node: #{@name}"
     args = %W(
       knife linode server create
       -r 'role[#{@role}]'
@@ -62,7 +61,6 @@ class Node < KnifeFabric
   end
 
   def delete
-    puts "Destroy node: #{@name}"
     rescue_knife { Chef::Knife.run %W(linode server delete #{@name}), KnifeCliTemplate.options }
     rescue_knife { Chef::Knife.run %W(node delete #{@name} --yes), KnifeCliTemplate.options }
     rescue_knife { Chef::Knife.run %W(client delete #{@name} --yes), KnifeCliTemplate.options }
