@@ -8,12 +8,7 @@ pwd = Dir.pwd
 # Get cookbooks
 LOGGER.info("Git: clone #{SimpleConfig.git.url} branch #{branch}")
 cookbooks = Cookbooks.get_changes(SimpleConfig.git.url, SimpleConfig.git.commit)
-
 LOGGER.info("Cookbooks: Find changes in: #{cookbooks}")
-skipped_cookbooks = cookbooks.reject { |c| File.exist?("cookbooks/#{c}/ci.yml") }
-cookbooks.select! { |c| File.exist?("cookbooks/#{c}/ci.yml") }
-LOGGER.info("Cookbooks: test #{cookbooks}") if cookbooks.any?
-LOGGER.warn("Cookbooks: skip #{skipped_cookbooks}") if skipped_cookbooks.any?
 
 nodes = []
 threads = []
@@ -30,6 +25,12 @@ if cookbooks.any?
   LOGGER.info("Berks: created environment #{chef_env.name}")
   chef_env.show
   Dir.chdir pwd
+
+  # Filter cookbooks
+  skipped_cookbooks = cookbooks.reject { |c| File.exist?("cookbooks/#{c}/ci.yml") }
+  cookbooks.select! { |c| File.exist?("cookbooks/#{c}/ci.yml") }
+  LOGGER.info("Cookbooks: test #{cookbooks}") if cookbooks.any?
+  LOGGER.warn("Cookbooks: skip #{skipped_cookbooks}") if skipped_cookbooks.any?
 
   # NodeUp/Down
   cookbooks.each do |cookbook|

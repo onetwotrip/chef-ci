@@ -1,5 +1,6 @@
 # Cookbooks utils
 class Cookbooks
+  # :nocov:
   def self.get_changes(url, commit)
     system 'git init'
     system 'git rev-parse --is-inside-work-tree'
@@ -9,4 +10,5 @@ class Cookbooks
     system "git checkout -f #{commit}"
     `git diff --name-only origin/develop`.split(/\n/).grep(%r{cookbooks/(.*)/}).map { |f| f.match(%r{cookbooks/([\w-]+)/})[1] }.uniq
   end
+  # :nocov:
 end

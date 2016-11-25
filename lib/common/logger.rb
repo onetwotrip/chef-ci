@@ -1,4 +1,5 @@
 require 'logger'
+# :nocov:
 LOGGER = Logger.new(STDOUT)
 LOGGER.formatter = proc do |severity, datetime, _progname, msg|
   date_format = datetime.strftime('%Y-%m-%d %H:%M:%S')
@@ -10,3 +11,4 @@ LOGGER.formatter = proc do |severity, datetime, _progname, msg|
     "[#{date_format}] [#{severity}] #{msg}\n"
   end
 end
+# :nocov:
