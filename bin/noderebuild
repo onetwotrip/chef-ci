@@ -13,22 +13,22 @@ else
   old_node.delete
   node = Node.new(name: node_name)
   node.set old_node_attrs
+  node.logfile = "#{LOG_PATH}/build_#{node.name}"
   node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'], template: bootstrap_template)
-  File.write("#{LOG_PATH}/build_#{node.name}.log", node.output)
 end
 if node.status
   LOGGER.info "Success bootstrap: #{node.name}"
   if ENV['JENKINS_WSLOG_URL']
     LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
+    puts File.read(node.logfile)
   end
 else
   LOGGER.warn "Failed bootstrap: #{node.name}"
   if ENV['JENKINS_WSLOG_URL']
     LOGGER.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
+    puts File.read(node.logfile)
   end
 end
 

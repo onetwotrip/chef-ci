@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Node do
   describe '.new' do
     before :each do
-      allow_any_instance_of(Node).to receive(:system_call).with(
+      allow_any_instance_of(Node).to receive(:run_with_out).with(
         include('knife node show')
       ).and_return '{}'
     end
@@ -26,7 +26,7 @@ describe Node do
 
   describe '.status' do
     it 'falsey by default' do
-      allow_any_instance_of(Node).to receive(:system_call).with(
+      allow_any_instance_of(Node).to receive(:run_with_out).with(
         include('knife node show')
       ).and_return '{}'
       node = described_class.new(name: 'test_name')
@@ -34,11 +34,8 @@ describe Node do
     end
     it 'truthy if nodeup passed' do
       node = described_class.new(autogen: 'gen_name-*')
-      allow_any_instance_of(Node).to receive(:system_call).with(
-        include('linode server create')
-      ).and_return 'System_call output'
+      allow_any_instance_of(Kernel).to receive(:system).with(include('knife linode server create'), any_args).and_return true
       node.create(flavor: 2, template: 'bootstrap_tmp')
-      expect(node.output).to eq 'System_call output'
       expect(node.status).to be_truthy
     end
     {
@@ -47,7 +44,7 @@ describe Node do
     }.each do |err, err_msg|
       it "falsey if nodeup failed with #{err_msg}" do
         node = described_class.new(autogen: 'gen_name-*')
-        allow_any_instance_of(Node).to receive(:system_call).with(
+        allow_any_instance_of(Node).to receive(:run_with_log).with(
           include('linode server create')
         ).and_raise(err, err_msg)
         cmd = proc { node.create(flavor: 3, template: 'bootstrap_tmp') }
@@ -72,24 +69,6 @@ describe Node do
         ).and_return true
       end
       expect(node.delete).to be_truthy
-    end
-  end
-
-  describe '.system_call' do
-    node = described_class.new(autogen: 'gen_name-*')
-    it 'return true with stdout' do
-      expect(node).to receive(:system_call).with(any_args).and_return 'stdout'
-      node.send(:system_call, 'echo stdout; true')
-    end
-    it 'return true with stderr' do
-      expect(node).to receive(:system_call).with(any_args).and_return 'stderr'
-      node.send(:system_call, '>&2 echo stderr; true')
-    end
-    it 'return false with stdout' do
-      expect { node.send(:system_call, 'echo stdout; false') }.to raise_error(RuntimeError, /stdout/)
-    end
-    it 'return false with stderr' do
-      expect { node.send(:system_call, '>&2 echo stderr; false') }.to raise_error(RuntimeError, /stderr/)
     end
   end
 end

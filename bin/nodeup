@@ -22,10 +22,12 @@ node_count.times do
     node.env          = deploy_params.chef.env
     node.chef_version = deploy_params.chef.version
     node.image        = deploy_params.linode.image
+    node.logfile      = "#{LOG_PATH}/build_#{node.name}"
+    LOGGER.info "Bootstrap node: #{node.name}"
+    LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
     node.create(flavor: deploy_params.linode.flavor,
                 template: BOOTSTRAP_TEMPLATE,
                 maintain: deploy_params.maintain)
-    File.write("#{LOG_PATH}/build_#{node.name}.log", node.output)
     nodes.push node
     node.delete if !node.status && !deploy_params.save
   end
@@ -41,7 +43,7 @@ deployed.each do |node|
   if ENV['JENKINS_WSLOG_URL']
     LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
+    puts File.read(node.logfile)
   end
 end
 
@@ -51,7 +53,7 @@ rejected.each do |node|
   if ENV['JENKINS_WSLOG_URL']
     LOGGER.warn "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log"
   else
-    puts File.read("#{LOG_PATH}/build_#{node.name}.log")
+    puts File.read(node.logfile)
   end
 end
 

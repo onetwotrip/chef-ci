@@ -4,7 +4,6 @@ require 'knife_fabric'
 ##
 # This class represents Node
 class Node < KnifeFabric
-  attr_reader   :output
   attr_accessor :name, :role, :env,
                 :chef_version,
                 :image, :kernel
@@ -32,15 +31,13 @@ class Node < KnifeFabric
       --bootstrap-version #{@chef_version}
     )
     rescue_knife do
-      puts 'Bootstrap with following command:'
-      puts args.join(' ')
-      @output = system_call args.join(' ') # Chef::Knife.run args
+      @status = run_with_log args.join(' ') # Chef::Knife.run args
       Chef::Knife.run %W(tag create #{@name} maintain) if maintain
     end
   end
 
   def show
-    JSON.parse system_call("knife node show #{@name} -F json -l")
+    JSON.parse run_with_out("knife node show #{@name} -F json -l")
   rescue RuntimeError
     {}
   end

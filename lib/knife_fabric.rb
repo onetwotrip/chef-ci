@@ -1,5 +1,4 @@
 require 'mixlib/cli'
-require 'open3'
 require 'sourcify'
 
 ##
@@ -15,13 +14,26 @@ class KnifeFabric
   HandleExceptions = [RuntimeError, SystemExit, StandardError].freeze
 
   attr_reader :status
+  attr_accessor :logfile
+
+  def logfile
+    @logfile || 'logs/logfile.log'
+  end
 
   private
 
-  def system_call(cmd)
-    stdout, status = Open3.capture2e cmd
-    raise stdout unless status.success?
-    stdout
+  def run_with_log(cmd)
+    io = File.open(logfile, 'w')
+    status = system(cmd, out: io, err: io)
+    io.close
+    status
+  end
+
+  def run_with_out(cmd)
+    r, io = IO.pipe
+    system(cmd, out: io, err: io)
+    io.close
+    r.read
   end
 
   def rescue_knife(&block)
