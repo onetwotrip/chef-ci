@@ -13,7 +13,7 @@ else
   old_node.delete
   node = Node.new(name: node_name)
   node.set old_node_attrs
-  node.logfile = "#{LOG_PATH}/build_#{node.name}"
+  node.logfile = "#{LOG_PATH}/build_#{node.name}.log"
   node.create(flavor: ENV['DEPLOY_LINODE_FLAVOR'], template: bootstrap_template)
 end
 if node.status

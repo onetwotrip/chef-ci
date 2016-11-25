@@ -41,7 +41,7 @@ if cookbooks.any?
       node.env          = chef_env.name
       node.chef_version = ci_config['chef']['version']
       node.image        = ci_config['linode']['image']
-      node.logfile      = "#{LOG_PATH}/build_#{node.name}"
+      node.logfile      = "#{LOG_PATH}/build_#{node.name}.log"
       LOGGER.info "Bootstrap node: #{node.name}"
       LOGGER.info "BuildLog: #{ENV['JENKINS_WSLOG_URL']}/build_#{node.name}.log" if ENV['JENKINS_WSLOG_URL']
       node.create(flavor: ci_config['linode']['flavor'],
