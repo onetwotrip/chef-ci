@@ -14,7 +14,11 @@ LOGGER.info 'Remove all role nodes from environment'
 LOGGER.info "Search nodes with query: #{query}"
 nodes = Chef::Knife.run(['search', 'node', query]).map(&:name)
 
+threads = []
 nodes.each do |name|
-  LOGGER.info "Destroy node: #{name}"
-  Node.new(name: name).delete
+  threads << Thread.new do
+    LOGGER.info "Destroy node: #{name}"
+    Node.new(name: name).delete
+  end
 end
+threads.each(&:join)
