@@ -22,4 +22,3 @@ else
   LOGGER.warn "It isn't allowed for #{chef_environment}"
   exit 1
 end
-
