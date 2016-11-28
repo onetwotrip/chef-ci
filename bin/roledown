@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+require_relative '../lib/common_libs'
+
+chef_role = SimpleConfig.chef.role
+chef_environment = SimpleConfig.chef.environment
+
+if chef_environment =~ /prod/
+  LOGGER.warn "It isn't allowed for #{chef_environment}"
+  exit 1
+end
+
+query = "chef_environment:#{chef_environment} AND roles:#{chef_role}"
+LOGGER.info 'Remove all role nodes from environment'
+LOGGER.info "Search nodes with query: #{query}"
+nodes = Chef::Knife.run(['search', 'node', query]).map(&:name)
+
+nodes.each do |name|
+  LOGGER.info "Destroy node: #{name}"
+  Node.new(name: name).delete
+end
