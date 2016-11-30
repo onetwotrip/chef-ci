@@ -185,13 +185,11 @@ echo "Setup private IP: <%= @config[:private_ip] %>"
 (
 cat <<EOF
 # Chef Twiket-Bootstrap entry
-auto eth0:0
 iface eth0:0 inet static
   address <%= @config[:private_ip] %>
   netmask 255.255.128.0
 EOF
 ) >> /etc/network/interfaces
-ifup eth0:0
 
 <% if knife_config[:bootstrap_install_command] %>
   <%= knife_config[:bootstrap_install_command] %>
