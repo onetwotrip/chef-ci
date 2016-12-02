@@ -5,6 +5,7 @@ gem 'colorize'
 gem 'SimpleConfig', git: 'https://github.com/onetwotrip/SimpleConfig'
 gem 'berkshelf'
 gem 'sourcify'
+gem 'parallel'
 
 group :development do
   gem 'overcommit'

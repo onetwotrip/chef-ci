@@ -12,6 +12,7 @@ require 'colorize'
 require 'fileutils'
 require 'mixlib/cli'
 require 'simple_config'
+require 'parallel'
 
 require 'common/logger'
 

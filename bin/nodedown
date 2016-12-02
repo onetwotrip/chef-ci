@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 require_relative '../lib/common_libs'
 
-SimpleConfig.nodes.split.each do |name|
+nodes = SimpleConfig.nodes.split
+Parallel.each(nodes, in_processes: nodes.count) do |name|
   LOGGER.info "Destroy node: #{name}"
   Node.new(name: name).delete
 end
