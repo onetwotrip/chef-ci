@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/common_libs'
+
+cmd  = ENV.fetch('CHEF_CMD')
+role = ENV.fetch('CHEF_ROLE')
+
+if cmd == 'restart'
+  if role == 'pricealert'
+    (0..3).each do |i|
+      service = "twiket-pricealert-504#{i}"
+      Chef::Knife.run([
+                        'ssh',
+                        'roles:api-pricealert AND chef_environment:marketing',
+                        "sudo sv status #{service}",
+                      ])
+    end
+  else
+    LOGGER.warn 'Dunno this role'
+  end
+
+else
+  LOGGER.warn 'Dunno this command'
+end
